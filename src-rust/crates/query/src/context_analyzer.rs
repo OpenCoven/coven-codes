@@ -268,6 +268,7 @@ mod tests {
             content: MessageContent::Text(text.to_string()),
             uuid: None,
             cost: None,
+            snapshot_patch: None,
         }
     }
 
