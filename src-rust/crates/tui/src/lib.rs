@@ -69,8 +69,6 @@ pub mod settings_screen;
 pub mod theme_screen;
 /// Color palette management for different themes and accessibility support.
 pub mod theme_colors;
-/// Privacy settings dialog.
-pub mod privacy_screen;
 /// Diff viewer dialog (two-pane: file list + unified diff detail).
 pub mod diff_viewer;
 /// Virtual scrollable list for efficient message rendering.
@@ -1270,6 +1268,4 @@ mod tests {
         assert_eq!(pr.options[3].key, 'n');
     }
 }
-
-
 

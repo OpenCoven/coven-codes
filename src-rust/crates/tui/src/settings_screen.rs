@@ -676,86 +676,17 @@ fn build_display_lines(screen: &SettingsScreen) -> Vec<Line<'static>> {
 // Privacy tab
 // ---------------------------------------------------------------------------
 
-/// Privacy-relevant fields parsed from the raw settings JSON.
-#[derive(Debug, Clone, Default)]
-struct PrivacySnapshot {
-    /// `hasAgreedToUsagePolicy` from settings.json
-    has_agreed: Option<bool>,
-    /// `disableTelemetry` from settings.json
-    disable_telemetry: Option<bool>,
-    /// `shareUsageData` from settings.json (optional field)
-    share_usage_data: Option<bool>,
-}
-
-impl PrivacySnapshot {
-    /// Load privacy fields from `~/.claurst/settings.json`.
-    fn load() -> Self {
-        let path = claurst_core::config::Settings::config_dir().join("settings.json");
-        let Ok(content) = std::fs::read_to_string(&path) else { return Self::default(); };
-        let Ok(json) = serde_json::from_str::<serde_json::Value>(&content) else { return Self::default(); };
-        Self {
-            has_agreed: json.get("hasAgreedToUsagePolicy").and_then(|v| v.as_bool()),
-            disable_telemetry: json.get("disableTelemetry").and_then(|v| v.as_bool()),
-            share_usage_data: json.get("shareUsageData").and_then(|v| v.as_bool()),
-        }
-    }
-
-    fn telemetry_enabled(&self) -> bool {
-        !self.disable_telemetry.unwrap_or(false)
-    }
-
-    fn usage_sharing_enabled(&self) -> bool {
-        self.share_usage_data.unwrap_or(false)
-    }
-}
-
 fn build_privacy_lines(screen: &SettingsScreen) -> Vec<Line<'static>> {
     let mut lines: Vec<Line<'static>> = Vec::new();
-    let privacy = PrivacySnapshot::load();
 
     lines.push(section_header("Privacy Settings"));
     lines.push(Line::from(""));
 
     lines.push(Line::from(vec![Span::styled(
-        "  These settings control data sharing with Anthropic.",
+        "  Claurst does not collect telemetry or usage data.",
         Style::default().fg(Color::DarkGray),
     )]));
     lines.push(Line::from(""));
-
-    // Usage policy agreement
-    let agreed_label = match privacy.has_agreed {
-        Some(true) => "Agreed",
-        Some(false) => "Not agreed",
-        None => "Unknown (field absent)",
-    };
-    lines.push(Line::from(vec![
-        Span::styled(
-            format!("  {:<25}", "Usage Policy"),
-            Style::default().fg(Color::White).add_modifier(Modifier::BOLD),
-        ),
-        Span::styled(
-            agreed_label.to_string(),
-            Style::default().fg(if privacy.has_agreed == Some(true) { Color::Green } else { Color::Yellow }),
-        ),
-    ]));
-    lines.push(indent_line("  Whether you have agreed to Anthropic's usage policy.", Color::DarkGray));
-    lines.push(Line::from(""));
-
-    // Telemetry
-    privacy_toggle_lines(
-        &mut lines,
-        "Telemetry",
-        privacy.telemetry_enabled(),
-        "Sends anonymised usage statistics to help improve Claurst.",
-    );
-
-    // Usage sharing
-    privacy_toggle_lines(
-        &mut lines,
-        "Usage Sharing",
-        privacy.usage_sharing_enabled(),
-        "Shares aggregate usage data for product improvement.",
-    );
 
     // Verbose (local debug logging)
     privacy_toggle_lines(
@@ -764,17 +695,6 @@ fn build_privacy_lines(screen: &SettingsScreen) -> Vec<Line<'static>> {
         screen.settings_snapshot.config.verbose,
         "Logs additional debug information locally (--verbose flag).",
     );
-
-    lines.push(Line::from(""));
-    lines.push(Line::from(vec![Span::styled(
-        "  Note: Edit ~/.claurst/settings.json to toggle telemetry/sharing values.",
-        Style::default().fg(Color::Yellow).add_modifier(Modifier::ITALIC),
-    )]));
-    lines.push(Line::from(""));
-    lines.push(Line::from(vec![Span::styled(
-        "  For full privacy policy see: https://www.anthropic.com/privacy",
-        Style::default().fg(Color::DarkGray),
-    )]));
 
     lines
 }
