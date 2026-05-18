@@ -27,7 +27,10 @@ jobs:
           registry-url: 'https://registry.npmjs.org'
 
       - name: Upgrade npm to latest (for trusted publishing)
-        run: npm install -g npm@11 --force
+        run: |
+          corepack enable
+          corepack prepare npm@11.5.1 --activate
+          npm --version
 
       - name: Set npm package version
         run: |
