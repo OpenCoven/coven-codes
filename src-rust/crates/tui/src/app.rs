@@ -3767,9 +3767,11 @@ impl App {
                 KeybindingResult::Action(action) => {
                     return self.handle_keybinding_action(&action);
                 }
-                KeybindingResult::Unbound | KeybindingResult::Pending => return false,
+                KeybindingResult::Pending => return false,
                 KeybindingResult::NoMatch if had_pending_chord => return false,
-                KeybindingResult::NoMatch => {}
+                KeybindingResult::Unbound | KeybindingResult::NoMatch => {
+                    // Fall through to hardcoded keybinding handlers
+                }
             }
         } else {
             self.keybindings.cancel_chord();
