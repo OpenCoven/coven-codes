@@ -194,7 +194,17 @@
     var d = document.createElement('details');
     d.className = 'tool-call';
     var s = document.createElement('summary');
-    s.innerHTML = '▸ <span class="tool-name">' + escapeHtml(block.name || 'tool') + '</span>';
+    
+    var badge = document.createElement('span');
+    badge.className = 'badge tool-badge';
+    badge.textContent = 'tool call';
+    s.appendChild(badge);
+    
+    var nameSpan = document.createElement('span');
+    nameSpan.className = 'tool-name';
+    nameSpan.textContent = block.name || 'tool';
+    s.appendChild(nameSpan);
+    
     d.appendChild(s);
     var b = document.createElement('div'); b.className = 'body';
     var pre = document.createElement('pre');
@@ -211,7 +221,17 @@
     d.className = 'tool-result' + (isError ? ' error' : '');
     d.open = isError;
     var s = document.createElement('summary');
-    s.textContent = isError ? '✗ tool result (error)' : '↳ tool result';
+    
+    var badge = document.createElement('span');
+    badge.className = 'badge result-badge' + (isError ? ' error' : '');
+    badge.textContent = isError ? 'error' : 'result';
+    s.appendChild(badge);
+    
+    var labelSpan = document.createElement('span');
+    labelSpan.className = 'result-label';
+    labelSpan.textContent = 'tool output';
+    s.appendChild(labelSpan);
+    
     d.appendChild(s);
     var b = document.createElement('div'); b.className = 'body';
     var text;
@@ -234,7 +254,12 @@
     var d = document.createElement('details');
     d.className = 'thinking';
     var s = document.createElement('summary');
-    s.textContent = '💭 thinking';
+    
+    var badge = document.createElement('span');
+    badge.className = 'badge thinking-badge';
+    badge.textContent = 'thinking';
+    s.appendChild(badge);
+    
     d.appendChild(s);
     var b = document.createElement('div'); b.className = 'body';
     var pre = document.createElement('pre');

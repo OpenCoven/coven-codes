@@ -4114,15 +4114,17 @@ impl App {
                 self.prompt_input.cursor = self.prompt_input.text.len();
                 self.sync_legacy_prompt_fields();
             }
-            KeyCode::Tab if !self.is_streaming => {
+            KeyCode::Tab => {
                 if !self.prompt_input.suggestions.is_empty() {
-                    // Accept slash-command suggestion
+                    // Accept slash-command suggestion. Allowed while streaming
+                    // so the typeahead popup is interactive even when a turn
+                    // is in flight — Enter then queues the completed command.
                     if self.prompt_input.suggestion_index.is_none() {
                         self.prompt_input.suggestion_index = Some(0);
                     }
                     self.prompt_input.accept_suggestion();
                     self.refresh_prompt_input();
-                } else if self.prompt_input.is_empty() {
+                } else if !self.is_streaming && self.prompt_input.is_empty() {
                     // Cycle agent mode: build → plan → explore → build
                     self.cycle_agent_mode();
                     self.rustle_look_down();

@@ -212,48 +212,139 @@ nav {
 
 /* Tool calls / tool results / thinking — collapsible details */
 details.tool-call, details.tool-result, details.thinking {
-  margin: 0.7em 0;
+  margin: 0.8em 0;
   border: 1px solid var(--surface-border);
-  border-radius: 6px;
-  background: rgba(0, 0, 0, 0.35);
-  font-size: 0.82rem;
+  border-radius: 8px;
+  background: rgba(10, 10, 10, 0.5);
+  font-size: 0.85rem;
+  overflow: hidden;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
+details.tool-call {
+  border-color: rgba(233, 30, 99, 0.2);
+  background: linear-gradient(to right, rgba(233, 30, 99, 0.02), rgba(0, 0, 0, 0.2));
+}
+details.tool-call:hover {
+  border-color: rgba(233, 30, 99, 0.4);
+  box-shadow: 0 0 12px rgba(233, 30, 99, 0.05);
+}
+details.tool-result {
+  border-color: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.01);
+}
+details.tool-result:hover {
+  border-color: rgba(255, 255, 255, 0.15);
+}
+details.tool-result.error {
+  border-color: rgba(255, 95, 86, 0.3);
+  background: rgba(255, 95, 86, 0.02);
+}
+details.tool-result.error:hover {
+  border-color: rgba(255, 95, 86, 0.5);
+  box-shadow: 0 0 12px rgba(255, 95, 86, 0.05);
+}
+details.thinking {
+  border-color: rgba(255, 255, 255, 0.06);
+  border-style: dashed;
+  background: transparent;
+}
+details.thinking:hover {
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
 details > summary {
   cursor: pointer;
-  padding: 0.55rem 0.9rem;
-  color: var(--text-secondary);
+  padding: 0.6rem 0.95rem;
+  color: var(--text-primary);
   user-select: none;
   list-style: none;
   font-family: var(--font-mono);
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.6rem;
+  transition: background 0.2s;
+}
+details > summary:hover {
+  background: rgba(255, 255, 255, 0.02);
 }
 details > summary::-webkit-details-marker { display: none; }
-details[open] > summary { border-bottom: 1px solid var(--surface-border); }
-details.tool-call > summary::before {
-  content: '▸'; color: var(--accent); margin-right: 0.1rem;
-  transition: transform 0.15s;
+details[open] > summary {
+  border-bottom: 1px solid var(--surface-border);
+  background: rgba(255, 255, 255, 0.01);
 }
-details.tool-call[open] > summary::before { transform: rotate(90deg); }
-details.tool-call > summary .tool-name {
+
+/* Rotation arrow */
+details > summary::before {
+  content: '▸';
+  display: inline-block;
+  color: var(--text-muted);
+  transition: transform 0.15s ease, color 0.15s ease;
+  font-size: 0.75rem;
+  margin-right: 0.1rem;
+}
+details[open] > summary::before {
+  transform: rotate(90deg);
+  color: var(--text-secondary);
+}
+details.tool-call[open] > summary::before {
   color: var(--accent);
-  font-weight: 500;
 }
-details.tool-result > summary::before {
-  content: '↳'; color: var(--text-muted); margin-right: 0.1rem;
+details.tool-result.error[open] > summary::before {
+  color: var(--error);
 }
-details.tool-result.error { border-color: var(--error); }
-details.tool-result.error > summary { color: var(--error); }
-details.thinking { background: rgba(255, 255, 255, 0.015); font-style: italic; }
-details.thinking > summary::before {
-  content: '◈'; color: var(--text-muted); margin-right: 0.1rem;
+
+/* Badges styling */
+.badge {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  padding: 2px 6px;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  line-height: 1;
+  user-select: none;
+}
+.badge.tool-badge {
+  background: rgba(233, 30, 99, 0.1);
+  color: var(--accent);
+  border: 1px solid rgba(233, 30, 99, 0.25);
+}
+.badge.result-badge {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-secondary);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+.badge.result-badge.error {
+  background: rgba(255, 95, 86, 0.1);
+  color: var(--error);
+  border: 1px solid rgba(255, 95, 86, 0.25);
+}
+.badge.thinking-badge {
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text-muted);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* Label details */
+details.tool-call > summary .tool-name {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+details.tool-result > summary .result-label {
+  color: var(--text-secondary);
+  font-weight: 400;
+}
+details.tool-result.error > summary .result-label {
+  color: var(--error);
 }
 
 details > .body {
-  padding: 0.7rem 0.9rem;
+  padding: 0.8rem 1rem;
   font-family: var(--font-mono);
-  font-size: 0.78rem;
+  font-size: 0.8rem;
+  background: rgba(0, 0, 0, 0.2);
 }
 details > .body pre {
   white-space: pre-wrap;
@@ -265,7 +356,8 @@ details > .body pre {
   border: none;
   padding: 0;
   color: var(--text-secondary);
-  font-size: 0.78rem;
+  font-size: 0.8rem;
+  line-height: 1.5;
 }
 
 /* Local shell command output (! command) — terminal style */
