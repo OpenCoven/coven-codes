@@ -37,7 +37,7 @@ use std::io::{self, Stdout};
 
 /// Figure/icon constants matching src/constants/figures.ts
 pub mod figures;
-/// Rustle mascot rendering.
+/// Rune mascot rendering.
 pub mod rustle;
 /// Context window and rate-limit visualization overlay (/context).
 pub mod context_viz;

@@ -9,7 +9,7 @@ name: Auto Release (commit marker)
 #       ACP registry, commits the bump as github-actions[bot] with [skip ci],
 #       then dispatches .github/workflows/release.yml.
 #
-#   --patch     (restricted to kuberwastaken)
+#   --patch     (restricted to OpenCoven maintainers)
 #       Patch the currently-shipped release in place.  Reads the version from
 #       src-rust/Cargo.toml, builds a bullet from the commit subject + sha,
 #       then dispatches .github/workflows/patch-release.yml with that bullet
@@ -180,7 +180,7 @@ jobs:
   # is not.
   auto-patch:
     runs-on: ubuntu-latest
-    if: github.actor == 'kuberwastaken'
+    if: github.actor == 'opencoven-bot'
 
     steps:
       - name: Skip bot commits

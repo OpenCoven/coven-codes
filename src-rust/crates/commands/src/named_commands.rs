@@ -81,7 +81,7 @@ impl NamedCommand for AgentsCommand {
                         ));
                     }
                 }
-                out.push_str("\nUse 'claurst agents create <name>' to add a new agent.");
+                out.push_str("\nUse 'coven-code agents create <name>' to add a new agent.");
                 CommandResult::Message(out)
             }
             "create" => {
@@ -311,7 +311,7 @@ pub struct TagCommand;
 impl NamedCommand for TagCommand {
     fn name(&self) -> &str { "tag" }
     fn description(&self) -> &str { "Toggle a searchable tag on the current session" }
-    fn usage(&self) -> &str { "claurst tag [list|add|remove|toggle] [tag]" }
+    fn usage(&self) -> &str { "coven-code tag [list|add|remove|toggle] [tag]" }
 
     fn execute_named(&self, args: &[&str], ctx: &CommandContext) -> CommandResult {
         let session_id = ctx.session_id.clone();
@@ -449,7 +449,7 @@ pub struct PassesCommand;
 impl NamedCommand for PassesCommand {
     fn name(&self) -> &str { "passes" }
     fn description(&self) -> &str { "Share a free week of Coven Code with friends" }
-    fn usage(&self) -> &str { "claurst passes" }
+    fn usage(&self) -> &str { "coven-code passes" }
 
     fn execute_named(&self, _args: &[&str], _ctx: &CommandContext) -> CommandResult {
         CommandResult::Message(
@@ -548,7 +548,7 @@ impl NamedCommand for IdeCommand {
         let connection_section = if ides.is_empty() {
             "No active IDE extension connections found.".to_string()
         } else {
-            format!("Connected IDEs:\n{}\n\nUse 'claurst ide open <file>' to open a file in the IDE.", ides.join("\n"))
+            format!("Connected IDEs:\n{}\n\nUse 'coven-code ide open <file>' to open a file in the IDE.", ides.join("\n"))
         };
 
         CommandResult::Message(format!("{env_section}\n\n{connection_section}"))
@@ -564,7 +564,7 @@ pub struct PrCommentsCommand;
 impl NamedCommand for PrCommentsCommand {
     fn name(&self) -> &str { "pr-comments" }
     fn description(&self) -> &str { "Get review comments from the current GitHub pull request" }
-    fn usage(&self) -> &str { "claurst pr-comments" }
+    fn usage(&self) -> &str { "coven-code pr-comments" }
 
     fn execute_named(&self, _args: &[&str], _ctx: &CommandContext) -> CommandResult {
         // Step 1: Get current git remote + PR info via gh CLI
@@ -636,7 +636,7 @@ pub struct DesktopCommand;
 impl NamedCommand for DesktopCommand {
     fn name(&self) -> &str { "desktop" }
     fn description(&self) -> &str { "Download and set up Coven Code Desktop app" }
-    fn usage(&self) -> &str { "claurst desktop" }
+    fn usage(&self) -> &str { "coven-code desktop" }
 
     fn execute_named(&self, _args: &[&str], ctx: &CommandContext) -> CommandResult {
         let os = std::env::consts::OS;
@@ -798,7 +798,7 @@ pub struct MobileCommand;
 impl NamedCommand for MobileCommand {
     fn name(&self) -> &str { "mobile" }
     fn description(&self) -> &str { "Download the Coven Code mobile app" }
-    fn usage(&self) -> &str { "claurst mobile [ios|android]" }
+    fn usage(&self) -> &str { "coven-code mobile [ios|android]" }
 
     fn execute_named(&self, args: &[&str], ctx: &CommandContext) -> CommandResult {
         let ios_url     = "https://apps.apple.com/app/claude-by-anthropic/id6473753684";
@@ -869,7 +869,7 @@ pub struct InstallGithubAppCommand;
 impl NamedCommand for InstallGithubAppCommand {
     fn name(&self) -> &str { "install-github-app" }
     fn description(&self) -> &str { "Set up Coven Code GitHub Actions for a repository" }
-    fn usage(&self) -> &str { "claurst install-github-app" }
+    fn usage(&self) -> &str { "coven-code install-github-app" }
 
     fn execute_named(&self, _args: &[&str], ctx: &CommandContext) -> CommandResult {
         let provider_id = ctx.config.selected_provider_id();
@@ -906,7 +906,7 @@ pub struct RemoteSetupCommand;
 impl NamedCommand for RemoteSetupCommand {
     fn name(&self) -> &str { "remote-setup" }
     fn description(&self) -> &str { "Check and configure a remote Coven Code environment" }
-    fn usage(&self) -> &str { "claurst remote-setup" }
+    fn usage(&self) -> &str { "coven-code remote-setup" }
 
     fn execute_named(&self, _args: &[&str], ctx: &CommandContext) -> CommandResult {
         use std::net::ToSocketAddrs;
@@ -952,7 +952,7 @@ impl NamedCommand for RemoteSetupCommand {
             }
         ));
 
-        // Step 3: Check claurst config dir exists
+        // Step 3: Check coven-code config dir exists
         let config_dir = claurst_core::config::Settings::config_dir();
         let has_config = config_dir.exists();
         steps.push(format!(
@@ -961,7 +961,7 @@ impl NamedCommand for RemoteSetupCommand {
             if has_config {
                 format!("exists at {}", config_dir.display())
             } else {
-                "missing \u{2014} run 'claurst' once to initialize".to_string()
+                "missing \u{2014} run 'coven-code' once to initialize".to_string()
             }
         ));
 
@@ -1000,9 +1000,9 @@ impl NamedCommand for RemoteSetupCommand {
              {}",
             steps.join("\n"),
             if all_ok {
-                "\u{2713} All checks passed. Coven Code is ready for remote use.\nStart a session: claurst --bridge"
+                "\u{2713} All checks passed. Coven Code is ready for remote use.\nStart a session: coven-code --bridge"
             } else {
-                "\u{2717} Some checks failed. Fix the issues above and run 'claurst remote-setup' again."
+                "\u{2717} Some checks failed. Fix the issues above and run 'coven-code remote-setup' again."
             }
         ))
     }
@@ -1017,7 +1017,7 @@ pub struct StickersCommand;
 impl NamedCommand for StickersCommand {
     fn name(&self) -> &str { "stickers" }
     fn description(&self) -> &str { "Open the Coven Code sticker page in your browser" }
-    fn usage(&self) -> &str { "claurst stickers" }
+    fn usage(&self) -> &str { "coven-code stickers" }
 
     fn execute_named(&self, _args: &[&str], _ctx: &CommandContext) -> CommandResult {
         let url = "https://www.stickermule.com/claudecode";
@@ -1039,7 +1039,7 @@ pub struct UltraplanCommand;
 impl NamedCommand for UltraplanCommand {
     fn name(&self) -> &str { "ultraplan" }
     fn description(&self) -> &str { "Launch Ultraplan agentic code planner with extended thinking" }
-    fn usage(&self) -> &str { "claurst ultraplan [--effort=medium|high|maximum]" }
+    fn usage(&self) -> &str { "coven-code ultraplan [--effort=medium|high|maximum]" }
 
     fn execute_named(&self, args: &[&str], _ctx: &CommandContext) -> CommandResult {
         // Parse effort level from args
@@ -1084,7 +1084,7 @@ impl NamedCommand for crate::StatsCommand {
         "Aggregate token / cost / tool stats across saved sessions"
     }
     fn usage(&self) -> &str {
-        "claurst stats [summary|sessions|tools|daily|session <id>] \
+        "coven-code stats [summary|sessions|tools|daily|session <id>] \
          [--days N] [--top N] [--all-projects] [--json]"
     }
 

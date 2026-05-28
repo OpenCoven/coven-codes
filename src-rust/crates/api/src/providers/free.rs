@@ -9,7 +9,7 @@
 //
 // Inspired by https://github.com/tashfeenahmed/freellmapi — the same
 // "aggregate the free tiers from many providers behind one OpenAI-
-// compatible endpoint" idea, ported into claurst's native provider
+// compatible endpoint" idea, ported into coven-code's native provider
 // trait.
 //
 // Routing:
@@ -40,7 +40,7 @@ use crate::provider_types::{
 
 /// One upstream provider in the free-mode chain.
 ///
-/// `id` is the canonical claurst `ProviderId` string — the auth store key the
+/// `id` is the canonical coven-code `ProviderId` string — the auth store key the
 /// dialog writes to, and the prefix the user types for `<id>/<model>` pinning.
 #[derive(Debug, Clone, Copy)]
 pub struct FreeUpstream {

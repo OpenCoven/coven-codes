@@ -19,7 +19,7 @@
 use ratatui::style::{Color, Modifier, Style};
 use ratatui::text::{Line, Span};
 
-/// The pose / expression of the Rustle mascot.
+/// The pose / expression of the Rune mascot (named "Rustle" in upstream).
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum RustlePose {
     Default,
@@ -159,7 +159,7 @@ fn loading_eye_spans(frame: u64) -> Vec<Span<'static>> {
     ]
 }
 
-/// Returns 5 Lines representing the Rustle mascot:
+/// Returns 5 Lines representing the Rune mascot:
 ///   [0] — head row (5-wide top, 7-wide bottom)
 ///   [1] — claws + eyes row (widest — pincers extend from sides)
 ///   [2] — body row

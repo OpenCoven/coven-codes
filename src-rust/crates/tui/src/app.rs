@@ -770,9 +770,9 @@ pub struct App {
 
     /// Instant the session started (used for elapsed-time in the status bar).
     pub session_start: std::time::Instant,
-    /// Current Rustle pose for rendering (updated each frame).
+    /// Current Rune pose for rendering (updated each frame).
     pub rustle_current_pose: crate::rustle::RustlePose,
-    /// Temporary Rustle pose override (e.g. look-down on Tab). Reverts to
+    /// Temporary Rune pose override (e.g. look-down on Tab). Reverts to
     /// default after this instant passes.
     pub rustle_pose_until: Option<std::time::Instant>,
     /// The temporary pose to show until `rustle_pose_until`.
@@ -1760,7 +1760,7 @@ impl App {
         self.context_used_tokens = 0;
     }
 
-    /// Update the Rustle pose for this frame — handles temporary poses, random blinks,
+    /// Update the Rune pose for this frame — handles temporary poses, random blinks,
     /// and the loading spinner on stalls/errors.
     /// Call once per frame before rendering.
     pub fn tick_rustle_pose(&mut self) {
@@ -1804,7 +1804,7 @@ impl App {
         self.rustle_current_pose = crate::rustle::RustlePose::Default;
     }
 
-    /// Trigger Rustle looking down briefly (called on Tab / mode switch).
+    /// Trigger Rune looking down briefly (called on Tab / mode switch).
     pub fn rustle_look_down(&mut self) {
         self.rustle_temp_pose = Some(crate::rustle::RustlePose::LookDown);
         self.rustle_pose_until = Some(

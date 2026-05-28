@@ -2,7 +2,7 @@
 # Refresh the bundled models.dev snapshot.
 #
 # Run this when models.dev publishes new models / pricing and you want the
-# default Claurst install to ship with the latest catalog without forcing
+# default Coven Code install to ship with the latest catalog without forcing
 # every user to wait for the background network refresh.
 #
 #   ./scripts/sync-models.sh
@@ -33,4 +33,4 @@ else
 fi
 
 echo "Wrote $dest"
-echo "Now run: cargo test -p claurst-api --lib model_registry"
+echo "Now run: cargo test -p claurst-api # (internal crate name) --lib model_registry"

@@ -1,6 +1,6 @@
 # Development Rules
 
-Agent-facing rules for working on Claurst. Mirrors and extends `src-rust/.claude/CLAUDE.md`; when the two disagree, the rule closer to the code wins.
+Agent-facing rules for working on Coven Code. Mirrors and extends `src-rust/.claude/CLAUDE.md`; when the two disagree, the rule closer to the code wins.
 
 ## Conversational Style
 
@@ -49,19 +49,19 @@ The ratatui frontend is sensitive to terminal size and key encoding. For repeata
 cargo build
 
 # 80×24 session
-tmux new-session -d -s claurst-test -x 80 -y 24
-tmux send-keys -t claurst-test "./target/debug/claurst" Enter
+tmux new-session -d -s coven-code-test -x 80 -y 24
+tmux send-keys -t coven-code-test "./target/debug/coven-code" Enter
 
 # Give it time to redraw, then capture
-sleep 2 && tmux capture-pane -t claurst-test -p
+sleep 2 && tmux capture-pane -t coven-code-test -p
 
 # Drive input
-tmux send-keys -t claurst-test "your prompt here" Enter
-tmux send-keys -t claurst-test Escape
-tmux send-keys -t claurst-test C-o   # ctrl+o
+tmux send-keys -t coven-code-test "your prompt here" Enter
+tmux send-keys -t coven-code-test Escape
+tmux send-keys -t coven-code-test C-o   # ctrl+o
 
 # Cleanup
-tmux kill-session -t claurst-test
+tmux kill-session -t coven-code-test
 ```
 
 On Windows hosts, prefer `cargo run -- --print "..."` against the headless path. The Windows console has known quirks with the kitty keyboard protocol — see `crates/tui` for the push/pop workaround.
@@ -116,7 +116,7 @@ If the provider uses an env var (e.g. `FOO_API_KEY`), wire it into the auth-stor
 
 ## Releasing
 
-Claurst uses a **single workspace version** stamped across every surface (Cargo workspace, Cargo.lock entries for the 12 `claurst*` crates, `npm/package.json`, README badge, docs, ACP registry template). Versioning is forward-only — the release workflow refuses to ship a tag less than or equal to the highest existing tag.
+Coven Code uses a **single workspace version** stamped across every surface (Cargo workspace, Cargo.lock entries for the 12 `claurst*` crates (internal crate names, intentionally preserved), `npm/package.json`, README badge, docs, ACP registry template). Versioning is forward-only — the release workflow refuses to ship a tag less than or equal to the highest existing tag.
 
 ## **CRITICAL** Git Rules for Parallel Agents
 

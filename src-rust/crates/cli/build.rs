@@ -15,7 +15,7 @@ fn main() {
     println!("cargo:rustc-env=GIT_COMMIT={}", commit);
 
     // Package/distribution metadata
-    println!("cargo:rustc-env=PACKAGE_URL=claurst-source-snapshot");
+    println!("cargo:rustc-env=PACKAGE_URL=coven-code-source-snapshot");
     println!("cargo:rustc-env=FEEDBACK_CHANNEL=github");
     println!("cargo:rustc-env=ISSUES_EXPLAINER=This build does not include Anthropic internal issue routing.");
 

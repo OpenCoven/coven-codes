@@ -115,7 +115,7 @@ fn parse_args(raw: &[&str]) -> Result<Args, String> {
                 session_id = positional.get(1).map(|s| s.to_string());
                 if session_id.is_none() {
                     return Err(
-                        "Usage: claurst stats session <session-id>".to_string(),
+                        "Usage: coven-code stats session <session-id>".to_string(),
                     );
                 }
                 Subcommand::SessionDetail
@@ -135,7 +135,7 @@ fn parse_args(raw: &[&str]) -> Result<Args, String> {
 }
 
 fn help_text() -> &'static str {
-    "Usage: claurst stats [subcommand] [flags]\n\
+    "Usage: coven-code stats [subcommand] [flags]\n\
      \n\
      Reads persisted JSONL transcripts under ~/.coven-code/projects/ and produces\n\
      token, cost, and tool-usage summaries.\n\
@@ -683,7 +683,7 @@ fn render_summary(agg: &Aggregated, ctx: &CommandContext) -> String {
     if agg.sessions.is_empty() {
         return format!(
             "{}\n\n{}\n\nNo sessions found.\n\nLooked under {}.\n\
-             Try `claurst stats --all-projects` to widen the scope.",
+             Try `coven-code stats --all-projects` to widen the scope.",
             header("Coven Code Session Stats"),
             render_scope_line(agg, ctx),
             projects_dir().display(),
@@ -783,7 +783,7 @@ fn render_summary(agg: &Aggregated, ctx: &CommandContext) -> String {
     }
 
     out.push_str(
-        "\nTry: claurst stats sessions · claurst stats tools · claurst stats daily\n",
+        "\nTry: coven-code stats sessions · coven-code stats tools · coven-code stats daily\n",
     );
     out
 }
@@ -846,13 +846,13 @@ fn render_sessions(agg: &Aggregated, top: Option<usize>, ctx: &CommandContext) -
     if let Some(n) = top {
         if sessions.len() > n {
             out.push_str(&format!(
-                "\n  … {} more session(s) hidden. Use `claurst stats sessions` (no --top) to see all.\n",
+                "\n  … {} more session(s) hidden. Use `coven-code stats sessions` (no --top) to see all.\n",
                 sessions.len() - n
             ));
         }
     }
     out.push_str(
-        "\nUse `claurst stats session <id>` to drill into a session.\n",
+        "\nUse `coven-code stats session <id>` to drill into a session.\n",
     );
     out
 }

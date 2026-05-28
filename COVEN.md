@@ -80,8 +80,8 @@ Replace `default_theme()` return values when brand assets are finalized.
 
 ### 6. Companion mascot — `src-rust/crates/tui/src/rustle.rs`
 
-ASCII mascot renderer. Currently "Rustle" from upstream.  
-To rebrand: rename `RustlePose` → `CompanionPose`, update art in `rustle_lines()`, update call-sites in `render.rs` and `app.rs`.
+ASCII mascot renderer. Currently "Rune" (renamed from "Rustle" upstream).  
+To rebrand: rename `RustlePose` → `CompanionPose` (pending — "Rune" is the mascot name), update art in `rustle_lines()`, update call-sites in `render.rs` and `app.rs`.
 
 ### 7. Memory / session hooks — `src-rust/crates/core/src/memdir.rs`, `session_storage.rs`
 

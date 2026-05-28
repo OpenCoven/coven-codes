@@ -209,7 +209,7 @@ pub fn discover_skills(
 
 /// Clone or reuse a cached git repo and return skills found in it.
 ///
-/// Cache location: `<system-cache>/claurst/skills/<repo-name>/`
+/// Cache location: `<system-cache>/coven-code/skills/<repo-name>/`
 /// On first access the repo is cloned with `--depth=1`.
 /// Subsequent calls use the already-cloned cache directory as-is.
 fn fetch_git_skills(url: &str) -> Option<Vec<DiscoveredSkill>> {

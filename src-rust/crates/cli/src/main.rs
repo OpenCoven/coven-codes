@@ -992,8 +992,8 @@ async fn run_models_command(args: &[String]) -> anyhow::Result<()> {
     if entries.is_empty() {
         if let Some(pid) = &provider_filter {
             eprintln!("No models found for provider '{}'.", pid);
-            eprintln!("Try: claurst models                # list all providers");
-            eprintln!("     claurst models --refresh      # pull latest from models.dev");
+            eprintln!("Try: coven-code models                # list all providers");
+            eprintln!("     coven-code models --refresh      # pull latest from models.dev");
         } else {
             eprintln!("No models in registry.  Try `coven-code models --refresh`.");
         }
@@ -2422,7 +2422,7 @@ async fn run_interactive(
                                                     Some("Login successful!".to_string());
                                                 eprintln!(
                                                     "\nLogin successful! Please restart \
-                                                     claurst to use the new credentials."
+                                                     coven-code to use the new credentials."
                                                 );
                                                 break 'main;
                                             }

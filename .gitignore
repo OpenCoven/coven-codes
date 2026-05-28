@@ -16,5 +16,5 @@ refs/
 
 # VSCode / unsolicited devcontainers mounts
 .vscode/
-.claurst/
+.coven-code/
 
