@@ -57,7 +57,7 @@ impl AgentStatus {
             Self::Idle => Color::DarkGray,
             Self::Running => Color::Green,
             Self::WaitingForTool => Color::Yellow,
-            Self::Complete => Color::Cyan,
+            Self::Complete => Color::Rgb(167, 139, 250),
             Self::Failed => Color::Red,
         }
     }
@@ -900,7 +900,7 @@ pub fn render_coordinator_status(agents: &[AgentInfo], area: Rect, buf: &mut Buf
 
         let (prefix, role_badge, role_color, indent) = match &agent.agent_role {
             AgentRole::Manager => ("● ", "[MGR]", Color::Magenta, ""),
-            AgentRole::Executor { .. } => ("  ○ ", "[EXE]", Color::Cyan, "  "),
+            AgentRole::Executor { .. } => ("  ○ ", "[EXE]", Color::Rgb(167, 139, 250), "  "),
             AgentRole::Normal => {
                 if agent.is_coordinator {
                     ("● ", "", Color::Green, "")

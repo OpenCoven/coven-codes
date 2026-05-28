@@ -81,7 +81,7 @@ pub fn render_voice_mode_notice(state: &VoiceModeNoticeState, area: Rect, buf: &
 
     let lines = vec![
         Line::from(vec![
-            Span::styled(" \u{1f3a4} ", Style::default().fg(Color::Cyan)),
+            Span::styled(" \u{1f3a4} ", Style::default().fg(Color::Rgb(167, 139, 250))),
             Span::styled(
                 "Voice mode is available! Use ",
                 Style::default().fg(Color::White),
@@ -89,7 +89,7 @@ pub fn render_voice_mode_notice(state: &VoiceModeNoticeState, area: Rect, buf: &
             Span::styled(
                 "Alt+V",
                 Style::default()
-                    .fg(Color::Cyan)
+                    .fg(Color::Rgb(167, 139, 250))
                     .add_modifier(Modifier::BOLD),
             ),
             Span::styled(
@@ -98,7 +98,7 @@ pub fn render_voice_mode_notice(state: &VoiceModeNoticeState, area: Rect, buf: &
             ),
             Span::styled(
                 "/voice",
-                Style::default().fg(Color::Cyan).add_modifier(Modifier::BOLD),
+                Style::default().fg(Color::Rgb(167, 139, 250)).add_modifier(Modifier::BOLD),
             ),
             Span::styled(
                 " to configure.  ",

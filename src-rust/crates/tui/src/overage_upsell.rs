@@ -101,7 +101,7 @@ pub fn render_overage_upsell(state: &OverageCreditUpsellState, area: Rect, buf: 
             Span::styled(
                 state.credits_url.clone(),
                 Style::default()
-                    .fg(Color::Cyan)
+                    .fg(Color::Rgb(167, 139, 250))
                     .add_modifier(Modifier::UNDERLINED),
             ),
         ]),

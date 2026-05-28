@@ -536,7 +536,7 @@ pub fn render_permission_dialog(frame: &mut Frame, pr: &PermissionRequest, area:
             lines.push(Line::from(vec![
                 Span::styled(
                     "  \u{276F} ",
-                    Style::default().fg(Color::Cyan).add_modifier(Modifier::BOLD),
+                    Style::default().fg(Color::Rgb(167, 139, 250)).add_modifier(Modifier::BOLD),
                 ),
                 Span::styled(
                     preview.clone(),
@@ -600,7 +600,7 @@ pub fn render_permission_dialog(frame: &mut Frame, pr: &PermissionRequest, area:
         PermissionDialogKind::Bash { .. } | PermissionDialogKind::PowerShell { .. } => {
             (Color::Yellow, " Permission Required ")
         }
-        PermissionDialogKind::FileRead { .. } => (Color::Cyan, " File Read Permission "),
+        PermissionDialogKind::FileRead { .. } => (Color::Rgb(167, 139, 250), " File Read Permission "),
         PermissionDialogKind::FileWrite { .. } => (Color::Yellow, " File Write Permission "),
         PermissionDialogKind::Generic => (Color::Yellow, " Permission Required "),
     };
@@ -1114,7 +1114,7 @@ pub fn render_mcp_approval_dialog(
         Span::styled("  Server:  ", Style::default().fg(Color::DarkGray)),
         Span::styled(
             truncate_str(&state.server_name, text_width.saturating_sub(10)),
-            Style::default().fg(Color::Cyan).add_modifier(Modifier::BOLD),
+            Style::default().fg(Color::Rgb(167, 139, 250)).add_modifier(Modifier::BOLD),
         ),
     ]));
     let _ = server_label; // suppress unused warning
@@ -1172,7 +1172,7 @@ pub fn render_mcp_approval_dialog(
         let prefix = if is_selected { "  \u{25BA} " } else { "    " };
         let num = choice.index() + 1;
         let key_style = if is_selected {
-            Style::default().fg(Color::Cyan).add_modifier(Modifier::BOLD)
+            Style::default().fg(Color::Rgb(167, 139, 250)).add_modifier(Modifier::BOLD)
         } else {
             Style::default().fg(Color::DarkGray)
         };
@@ -1200,10 +1200,10 @@ pub fn render_mcp_approval_dialog(
         .title(Span::styled(
             " MCP Server Connection ",
             Style::default()
-                .fg(Color::Cyan)
+                .fg(Color::Rgb(167, 139, 250))
                 .add_modifier(Modifier::BOLD),
         ))
-        .border_style(Style::default().fg(Color::Cyan));
+        .border_style(Style::default().fg(Color::Rgb(167, 139, 250)));
 
     let para = Paragraph::new(lines).block(block);
     para.render(dialog_area, buf);

@@ -166,7 +166,7 @@ pub fn render_device_auth_dialog(
         return;
     }
 
-    let pink = Color::Rgb(233, 30, 99);
+    let pink = Color::Rgb(139, 92, 246);
     let dim = Color::Rgb(90, 90, 90);
     let dialog_bg = COVEN_CODE_PANEL_BG;
     let green = Color::Rgb(80, 200, 120);

@@ -195,9 +195,9 @@ pub fn render_dialog_select(frame: &mut Frame, state: &DialogSelectState, area: 
 
     let dim = Color::Rgb(90, 90, 90);
     let dialog_bg = COVEN_CODE_PANEL_BG;
-    let highlight_bg = Color::Rgb(233, 30, 99); // pink highlight bar
+    let highlight_bg = Color::Rgb(139, 92, 246); // pink highlight bar
     let highlight_fg = Color::White;
-    let category_fg = Color::Rgb(233, 30, 99); // pink category names
+    let category_fg = Color::Rgb(139, 92, 246); // pink category names
 
     // ── Darken the entire background ──
     render_dark_overlay(frame, area);

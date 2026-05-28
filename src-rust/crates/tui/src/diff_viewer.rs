@@ -977,8 +977,8 @@ fn build_diff_lines(file: &FileDiffStats, width: u16) -> Vec<Line<'static>> {
             // Standard single-line rendering
             let (marker, content_style) = match diff_line.kind {
                 DiffLineKind::Header => (
-                    Span::styled("@@ ", Style::default().fg(Color::Cyan)),
-                    Style::default().fg(Color::Cyan),
+                    Span::styled("@@ ", Style::default().fg(Color::Rgb(167, 139, 250))),
+                    Style::default().fg(Color::Rgb(167, 139, 250)),
                 ),
                 DiffLineKind::Added => (
                     Span::styled("+  ", Style::default().fg(Color::Green)),

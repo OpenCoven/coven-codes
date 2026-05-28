@@ -725,10 +725,10 @@ pub fn render_model_picker(state: &ModelPickerState, area: Rect, buf: &mut Buffe
     use ratatui::prelude::Stylize;
     use ratatui::widgets::Widget;
 
-    let _pink = Color::Rgb(233, 30, 99);
+    let _pink = Color::Rgb(139, 92, 246);
     let dim = Color::Rgb(90, 90, 90);
     let dialog_bg = COVEN_CODE_PANEL_BG;
-    let highlight_bg = Color::Rgb(233, 30, 99);
+    let highlight_bg = Color::Rgb(139, 92, 246);
     let highlight_fg = Color::White;
 
     // ── Dark overlay ──
@@ -924,7 +924,7 @@ pub fn render_model_picker(state: &ModelPickerState, area: Rect, buf: &mut Buffe
         }
     }
     footer_spans.push(Span::raw("  "));
-    footer_spans.push(Span::styled(" /connect", Style::default().fg(Color::Rgb(233, 30, 99))));
+    footer_spans.push(Span::styled(" /connect", Style::default().fg(Color::Rgb(139, 92, 246))));
     footer_spans.push(Span::styled(" providers", Style::default().fg(dim)));
     Paragraph::new(Line::from(footer_spans)).bg(dialog_bg).render(footer_area, buf);
 }

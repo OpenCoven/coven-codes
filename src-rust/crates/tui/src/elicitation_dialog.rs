@@ -371,11 +371,11 @@ pub fn render_elicitation_dialog(state: &ElicitationDialogState, area: Rect, buf
             title,
             Style::default()
                 .fg(Color::Black)
-                .bg(Color::Cyan)
+                .bg(Color::Rgb(167, 139, 250))
                 .add_modifier(Modifier::BOLD),
         ))
         .borders(Borders::ALL)
-        .border_style(Style::default().fg(Color::Cyan))
+        .border_style(Style::default().fg(Color::Rgb(167, 139, 250)))
         .render(dialog_area, buf);
 
     let inner = Rect {
@@ -405,7 +405,7 @@ pub fn render_elicitation_dialog(state: &ElicitationDialogState, area: Rect, buf
     for (idx, field) in state.fields.iter().enumerate() {
         let focused = idx == state.active_field;
         let label_style = if focused {
-            Style::default().fg(Color::Cyan).add_modifier(Modifier::BOLD)
+            Style::default().fg(Color::Rgb(167, 139, 250)).add_modifier(Modifier::BOLD)
         } else {
             Style::default().fg(Color::Gray)
         };
@@ -509,7 +509,7 @@ fn render_field_value_line<'a>(field: &'a ElicitationField, focused: bool, width
                 let on_cursor = focused && i == sub_cursor;
                 let check = if is_checked { "[x] " } else { "[ ] " };
                 let style = if on_cursor {
-                    Style::default().fg(Color::Cyan).add_modifier(Modifier::BOLD)
+                    Style::default().fg(Color::Rgb(167, 139, 250)).add_modifier(Modifier::BOLD)
                 } else if is_checked {
                     Style::default().fg(Color::Green)
                 } else {

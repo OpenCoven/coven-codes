@@ -1162,7 +1162,7 @@ Move immutable borrow out of scope first, then take mutable. Good good good afte
 }
 
 /// Accent color for build mode (default pink).
-pub const ACCENT_BUILD: Color = Color::Rgb(233, 30, 99);
+pub const ACCENT_BUILD: Color = Color::Rgb(139, 92, 246);
 /// Accent color for plan mode (blue).
 pub const ACCENT_PLAN: Color = Color::Rgb(66, 135, 245);
 /// Accent color for explore mode (amber).

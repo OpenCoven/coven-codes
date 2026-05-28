@@ -154,11 +154,11 @@ pub fn render_desktop_upsell_startup(
             " Coven Code Code Desktop ",
             Style::default()
                 .fg(Color::Black)
-                .bg(Color::Cyan)
+                .bg(Color::Rgb(167, 139, 250))
                 .add_modifier(Modifier::BOLD),
         ))
         .borders(Borders::ALL)
-        .border_style(Style::default().fg(Color::Cyan))
+        .border_style(Style::default().fg(Color::Rgb(167, 139, 250)))
         .render(dialog_area, buf);
 
     let inner = Rect {
@@ -186,7 +186,7 @@ pub fn render_desktop_upsell_startup(
         let prefix = if selected { "> " } else { "  " };
         let label_style = if selected {
             Style::default()
-                .fg(Color::Cyan)
+                .fg(Color::Rgb(167, 139, 250))
                 .add_modifier(Modifier::BOLD)
         } else {
             Style::default().fg(Color::Gray)

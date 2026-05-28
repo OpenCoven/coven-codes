@@ -99,7 +99,7 @@ fn builtin_themes() -> Vec<ThemeOption> {
             name: "default".to_string(),
             label: "Default".to_string(),
             description: "Coven Code default — dark background, cyan accents".to_string(),
-            swatch: [Color::Black, Color::Cyan, Color::Green, Color::White],
+            swatch: [Color::Black, Color::Rgb(167, 139, 250), Color::Green, Color::White],
         },
         ThemeOption {
             name: "dark".to_string(),

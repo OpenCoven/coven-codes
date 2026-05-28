@@ -157,7 +157,7 @@ impl PluginListItem {
         if !meta.is_empty() {
             parts.push(Span::styled(
                 format!("({})", meta.join(", ")),
-                Style::default().fg(Color::Cyan),
+                Style::default().fg(Color::Rgb(167, 139, 250)),
             ));
         }
 
@@ -302,7 +302,7 @@ pub fn render_plugin_detail(frame: &mut Frame, item: &PluginListItem, area: Rect
 
     let lines: Vec<Line> = vec![
         Line::from(vec![
-            Span::styled("  Name:    ", Style::default().fg(Color::Cyan)),
+            Span::styled("  Name:    ", Style::default().fg(Color::Rgb(167, 139, 250))),
             Span::styled(
                 format!("{} v{}", item.name, item.version),
                 Style::default().add_modifier(Modifier::BOLD),
@@ -311,15 +311,15 @@ pub fn render_plugin_detail(frame: &mut Frame, item: &PluginListItem, area: Rect
             Span::styled(format!("[{}]", status), status_style),
         ]),
         Line::from(vec![
-            Span::styled("  Desc:    ", Style::default().fg(Color::Cyan)),
+            Span::styled("  Desc:    ", Style::default().fg(Color::Rgb(167, 139, 250))),
             Span::raw(item.description.clone()),
         ]),
         Line::from(vec![
-            Span::styled("  Source:  ", Style::default().fg(Color::Cyan)),
+            Span::styled("  Source:  ", Style::default().fg(Color::Rgb(167, 139, 250))),
             Span::styled(item.source.clone(), Style::default().fg(Color::Yellow)),
         ]),
         Line::from(vec![
-            Span::styled("  Counts:  ", Style::default().fg(Color::Cyan)),
+            Span::styled("  Counts:  ", Style::default().fg(Color::Rgb(167, 139, 250))),
             Span::styled(
                 format!("{} {}  •  {} {}", item.command_count, cmd_label, item.hook_count, hook_label),
                 Style::default().fg(Color::White),

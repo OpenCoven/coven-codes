@@ -12,7 +12,7 @@ use ratatui::widgets::{Block, Borders, Clear, Paragraph, Widget};
 use ratatui::Frame;
 use unicode_width::UnicodeWidthStr;
 
-pub const COVEN_CODE_ACCENT: Color = Color::Rgb(233, 30, 99);
+pub const COVEN_CODE_ACCENT: Color = Color::Rgb(139, 92, 246);
 pub const COVEN_CODE_PANEL_BG: Color = Color::Rgb(20, 20, 28);
 pub const COVEN_CODE_PANEL_BORDER: Color = Color::Rgb(72, 72, 80);
 pub const COVEN_CODE_TEXT: Color = Color::Rgb(235, 235, 240);
@@ -1030,7 +1030,7 @@ pub fn render_history_search_overlay(
                 (
                     "  \u{25BA} ",
                     Style::default()
-                        .fg(Color::Cyan)
+                        .fg(Color::Rgb(167, 139, 250))
                         .add_modifier(Modifier::BOLD),
                 )
             } else {
@@ -1084,7 +1084,7 @@ pub fn render_history_search_overlay(
     let block = Block::default()
         .borders(Borders::ALL)
         .title(" History Search ")
-        .border_style(Style::default().fg(Color::Cyan));
+        .border_style(Style::default().fg(Color::Rgb(167, 139, 250)));
 
     let para = Paragraph::new(lines).block(block);
     frame.render_widget(para, dialog_area);
@@ -1268,7 +1268,7 @@ pub fn render_message_selector(frame: &mut Frame, overlay: &MessageSelectorOverl
             let is_selected = real_i == overlay.selected_idx;
 
             let role_color = if msg.role == "user" {
-                Color::Cyan
+                Color::Rgb(167, 139, 250)
             } else {
                 Color::Green
             };
@@ -1637,7 +1637,7 @@ pub fn render_global_search(state: &GlobalSearchState, area: ratatui::layout::Re
     Block::default()
         .title(" Search [Esc: close, Enter: insert, \u{2191}\u{2193}: navigate] ")
         .borders(Borders::ALL)
-        .style(Style::default().fg(Color::Cyan))
+        .style(Style::default().fg(Color::Rgb(167, 139, 250)))
         .render(dialog, buf);
 
     let inner = Rect {
@@ -1649,9 +1649,9 @@ pub fn render_global_search(state: &GlobalSearchState, area: ratatui::layout::Re
 
     // Query input bar (first row)
     let query_line = Line::from(vec![
-        Span::styled("/ ", Style::default().fg(Color::Cyan)),
+        Span::styled("/ ", Style::default().fg(Color::Rgb(167, 139, 250))),
         Span::styled(state.query.clone(), Style::default().fg(Color::White)),
-        Span::styled("\u{2588}", Style::default().fg(Color::Cyan)),
+        Span::styled("\u{2588}", Style::default().fg(Color::Rgb(167, 139, 250))),
     ]);
     Paragraph::new(query_line).render(
         Rect { x: inner.x, y: inner.y, width: inner.width, height: 1 },

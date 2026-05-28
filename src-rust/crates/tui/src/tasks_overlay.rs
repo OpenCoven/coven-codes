@@ -259,7 +259,7 @@ pub fn render_tasks_overlay(frame: &mut Frame, overlay: &TasksOverlay, area: Rec
     let block = Block::default()
         .borders(Borders::ALL)
         .title(format!(" {} ", title_text))
-        .border_style(Style::default().fg(Color::Cyan));
+        .border_style(Style::default().fg(Color::Rgb(167, 139, 250)));
 
     frame.render_widget(block, dialog_area);
 

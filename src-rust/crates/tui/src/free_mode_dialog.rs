@@ -204,7 +204,7 @@ pub fn render_free_mode_dialog(frame: &mut Frame, state: &FreeModeDialogState, a
         return;
     }
 
-    let pink = Color::Rgb(233, 30, 99);
+    let pink = Color::Rgb(139, 92, 246);
     let dim = Color::Rgb(90, 90, 90);
     let muted = Color::Rgb(180, 180, 180);
     let tip = Color::Rgb(120, 210, 150);

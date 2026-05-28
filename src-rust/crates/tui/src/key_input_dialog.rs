@@ -95,7 +95,7 @@ pub fn render_key_input_dialog(
         return;
     }
 
-    let pink = Color::Rgb(233, 30, 99);
+    let pink = Color::Rgb(139, 92, 246);
     let dim = Color::Rgb(90, 90, 90);
     let dialog_bg = COVEN_CODE_PANEL_BG;
 

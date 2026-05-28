@@ -283,7 +283,7 @@ pub fn render_session_browser(state: &SessionBrowserState, area: Rect, buf: &mut
 
             let title_style = if is_selected {
                 Style::default()
-                    .fg(Color::Cyan)
+                    .fg(Color::Rgb(167, 139, 250))
                     .bg(row_bg)
                     .add_modifier(Modifier::BOLD)
             } else {
@@ -320,22 +320,22 @@ pub fn render_session_browser(state: &SessionBrowserState, area: Rect, buf: &mut
                 Span::styled("  ", Style::default()),
                 Span::styled(
                     "\u{2191}\u{2193}",
-                    Style::default().fg(Color::Cyan).add_modifier(Modifier::BOLD),
+                    Style::default().fg(Color::Rgb(167, 139, 250)).add_modifier(Modifier::BOLD),
                 ),
                 Span::styled(" navigate  ", Style::default().fg(Color::DarkGray)),
                 Span::styled(
                     "Enter",
-                    Style::default().fg(Color::Cyan).add_modifier(Modifier::BOLD),
+                    Style::default().fg(Color::Rgb(167, 139, 250)).add_modifier(Modifier::BOLD),
                 ),
                 Span::styled("=resume  ", Style::default().fg(Color::DarkGray)),
                 Span::styled(
                     "r",
-                    Style::default().fg(Color::Cyan).add_modifier(Modifier::BOLD),
+                    Style::default().fg(Color::Rgb(167, 139, 250)).add_modifier(Modifier::BOLD),
                 ),
                 Span::styled("=rename  ", Style::default().fg(Color::DarkGray)),
                 Span::styled(
                     "Esc",
-                    Style::default().fg(Color::Cyan).add_modifier(Modifier::BOLD),
+                    Style::default().fg(Color::Rgb(167, 139, 250)).add_modifier(Modifier::BOLD),
                 ),
                 Span::styled("=close", Style::default().fg(Color::DarkGray)),
             ]));
@@ -358,12 +358,12 @@ pub fn render_session_browser(state: &SessionBrowserState, area: Rect, buf: &mut
                 Span::styled("  ", Style::default()),
                 Span::styled(
                     "Enter",
-                    Style::default().fg(Color::Cyan).add_modifier(Modifier::BOLD),
+                    Style::default().fg(Color::Rgb(167, 139, 250)).add_modifier(Modifier::BOLD),
                 ),
                 Span::styled("=confirm  ", Style::default().fg(Color::DarkGray)),
                 Span::styled(
                     "Esc",
-                    Style::default().fg(Color::Cyan).add_modifier(Modifier::BOLD),
+                    Style::default().fg(Color::Rgb(167, 139, 250)).add_modifier(Modifier::BOLD),
                 ),
                 Span::styled("=cancel", Style::default().fg(Color::DarkGray)),
             ]));
@@ -394,7 +394,7 @@ pub fn render_session_browser(state: &SessionBrowserState, area: Rect, buf: &mut
         .borders(Borders::ALL)
         .title(" Sessions ")
         .title_alignment(Alignment::Center)
-        .border_style(Style::default().fg(Color::Cyan));
+        .border_style(Style::default().fg(Color::Rgb(167, 139, 250)));
 
     let para = Paragraph::new(lines)
         .block(block)

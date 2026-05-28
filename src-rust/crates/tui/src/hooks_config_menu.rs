@@ -435,7 +435,7 @@ fn render_matcher_list(state: &HooksConfigMenuState) -> (&'static str, Vec<Line<
     lines.push(Line::from(""));
     lines.push(Line::from(vec![
         Span::styled("  Event: ", Style::default().fg(Color::DarkGray)),
-        Span::styled(event.to_string(), Style::default().fg(Color::Cyan).add_modifier(Modifier::BOLD)),
+        Span::styled(event.to_string(), Style::default().fg(Color::Rgb(167, 139, 250)).add_modifier(Modifier::BOLD)),
     ]));
     lines.push(Line::from(""));
 
@@ -459,7 +459,7 @@ fn render_hook_list(state: &HooksConfigMenuState) -> (&'static str, Vec<Line<'st
     lines.push(Line::from(""));
     lines.push(Line::from(vec![
         Span::styled("  ", Style::default()),
-        Span::styled(event.to_string(), Style::default().fg(Color::Cyan)),
+        Span::styled(event.to_string(), Style::default().fg(Color::Rgb(167, 139, 250))),
         Span::styled(" / ", Style::default().fg(Color::DarkGray)),
         Span::styled(matcher.to_string(), Style::default().fg(Color::White).add_modifier(Modifier::BOLD)),
     ]));

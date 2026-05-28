@@ -18,7 +18,7 @@ use ratatui::{
 };
 use unicode_width::{UnicodeWidthChar, UnicodeWidthStr};
 
-const CLAUDE_ORANGE: Color = Color::Rgb(233, 30, 99);
+const CLAUDE_ORANGE: Color = Color::Rgb(139, 92, 246);
 const PROMPT_POINTER: &str = "\u{276f}";
 
 // ---------------------------------------------------------------------------
@@ -60,7 +60,7 @@ impl VimMode {
             Self::Insert => Color::Blue,
             Self::Normal => Color::Green,
             Self::Visual | Self::VisualLine | Self::VisualBlock => Color::Magenta,
-            Self::Command | Self::Search => Color::Cyan,
+            Self::Command | Self::Search => Color::Rgb(167, 139, 250),
         }
     }
 }
@@ -2904,7 +2904,7 @@ pub fn render_prompt_input(
             } else {
                 format!(" \u{f03e} {} ", img.label)
             };
-            pills.push(Span::styled(label, Style::default().fg(Color::Black).bg(Color::Cyan)));
+            pills.push(Span::styled(label, Style::default().fg(Color::Black).bg(Color::Rgb(167, 139, 250))));
             pills.push(Span::raw(" "));
         }
         if !pills.is_empty() {
@@ -3119,7 +3119,7 @@ pub fn render_prompt_input(
     let cmd_line: Option<Line<'static>> = match state.vim_mode {
         VimMode::Command => {
             let buf_text = format!(":{}\u{2588}", state.vim_command_buf);
-            Some(Line::from(vec![Span::styled(buf_text, Style::default().fg(Color::Cyan))]))
+            Some(Line::from(vec![Span::styled(buf_text, Style::default().fg(Color::Rgb(167, 139, 250)))]))
         }
         VimMode::Search => {
             let buf_text = format!("/{}\u{2588}", state.vim_search_buf);
