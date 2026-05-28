@@ -128,7 +128,7 @@ static ALL_TIPS: Lazy<Vec<Tip>> = Lazy::new(|| {
         },
         Tip {
             id: "custom-agents",
-            content: "Use /agents to optimize specific tasks. Eg. Software Architect, Code Writer, Code Reviewer",
+            content: "Use /familiars to configure specialized familiar roles: Architect, Reviewer, Researcher",
             cooldown_sessions: 15,
         },
         Tip {
@@ -158,7 +158,7 @@ static ALL_TIPS: Lazy<Vec<Tip>> = Lazy::new(|| {
         },
         Tip {
             id: "agent-flag",
-            content: "Use --agent <agent_name> to directly start a conversation with a subagent",
+            content: "Use --agent <familiar_name> to start a session with a specific familiar",
             cooldown_sessions: 15,
         },
     ]

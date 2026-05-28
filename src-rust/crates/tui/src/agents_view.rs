@@ -501,10 +501,10 @@ fn slugify_agent_name(name: &str) -> String {
 fn validate_editor(editor: &AgentEditorState) -> Result<(), String> {
     let name = editor.name.trim();
     if name.is_empty() {
-        return Err("Agent name is required.".to_string());
+        return Err("Familiar name is required.".to_string());
     }
     if slugify_agent_name(name).is_empty() {
-        return Err("Agent name must contain letters or numbers.".to_string());
+        return Err("Familiar name must contain letters or numbers.".to_string());
     }
     if editor.model.trim().is_empty() {
         return Err("Model is required.".to_string());
@@ -567,7 +567,7 @@ pub fn render_agents_menu(state: &AgentsMenuState, area: Rect, buf: &mut Buffer)
     let layout = begin_modal_buf(buf, area, 92, 30, 2, 1);
     let (title, subtitle, footer) = match &state.route {
         AgentsRoute::List => (
-            "Agents".to_string(),
+            "Familiars".to_string(),
             format!(
                 " {} active  ·  {} definitions",
                 state.active_agents.len(),
@@ -580,18 +580,18 @@ pub fn render_agents_menu(state: &AgentsMenuState, area: Rect, buf: &mut Buffer)
                 .definitions
                 .get(*idx)
                 .map(|def| def.name.clone())
-                .unwrap_or_else(|| "Agent".to_string()),
+                .unwrap_or_else(|| "Familiar".to_string()),
             " Review configuration and prompt details.".to_string(),
             " enter edit  ·  esc back".to_string(),
         ),
         AgentsRoute::Editor(Some(_)) => (
-            "Edit agent".to_string(),
+            "Edit familiar".to_string(),
             " Update metadata, tools, and prompt instructions.".to_string(),
             " tab move  ·  ctrl+s save  ·  esc back".to_string(),
         ),
         AgentsRoute::Editor(None) => (
-            "Create agent".to_string(),
-            " Define a new reusable agent for this workspace.".to_string(),
+            "Create familiar".to_string(),
+            " Define a new reusable familiar for this workspace.".to_string(),
             " tab move  ·  ctrl+s save  ·  esc back".to_string(),
         ),
     };

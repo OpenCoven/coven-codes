@@ -6,7 +6,7 @@ use crate::agents_view::render_agents_menu;
 use crate::context_viz::render_context_viz;
 use crate::export_dialog::render_export_dialog;
 use crate::app::{App, ContextMenuKind, SystemAnnotation, SystemMessageStyle, ToolStatus};
-use crate::rustle::rustle_lines;
+use crate::rustle::rustle_lines_for;
 use crate::diff_viewer::render_diff_dialog;
 use crate::model_picker::render_model_picker;
 use crate::session_browser::render_session_browser;
@@ -1521,7 +1521,7 @@ fn render_welcome_box(frame: &mut Frame, app: &App, area: Rect) {
     } else {
         "Welcome back!".to_string()
     };
-    let rustle = rustle_lines(&app.rustle_current_pose);
+    let rustle = rustle_lines_for(app.config.familiar.as_deref(), &app.rustle_current_pose);
     let mut left_lines: Vec<Line> = Vec::new();
     left_lines.push(Line::from(Span::styled(
         welcome_msg,
@@ -1767,7 +1767,7 @@ fn render_input(frame: &mut Frame, app: &App, area: Rect, focused: bool) {
         (None, area)
     };
 
-    // Render model + agent mode status line above the prompt.
+    // Render model + familiar mode status line above the prompt.
     if let Some(status_area) = status_area {
         let agent_mode = match app.agent_mode.as_deref() {
             Some(m) => m,

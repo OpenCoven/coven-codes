@@ -44,8 +44,8 @@ use tracing::debug;
 
 const PROMPT_SLASH_COMMANDS: &[(&str, &str)] = &[
     ("advisor", "Set or unset the server-side advisor model"),
-    ("agent", "List available agents or show agent details"),
-    ("agents", "Browse agent definitions and active agents"),
+    ("agent", "List available familiars or show familiar details"),
+    ("agents", "Browse familiar definitions and active familiars"),
     ("changes", "Inspect changes from the current session"),
     ("clear", "Clear the conversation transcript"),
     ("compact", "Compact the conversation context"),

@@ -965,6 +965,11 @@ pub mod config {
         /// Named agent definitions (copied from Settings on load).
         #[serde(default)]
         pub agents: HashMap<String, AgentDefinition>,
+        /// Active familiar — drives the mascot glyph in the welcome screen.
+        /// Valid values: "kitty" | "nova" | "cody" | "charm" | "sage" | "astra" | "echo".
+        /// Defaults to "kitty" (the Coven Code cat). Set via `"familiar": "nova"` in settings.json.
+        #[serde(default)]
+        pub familiar: Option<String>,
         /// Skill-discovery configuration (copied from Settings on load).
         #[serde(default)]
         pub skills: SkillsConfig,
@@ -1099,6 +1104,9 @@ pub mod config {
         /// Named agent definitions (overrides built-in defaults).
         #[serde(default)]
         pub agents: HashMap<String, AgentDefinition>,
+        /// Active familiar — drives the mascot glyph in the welcome screen.
+        #[serde(default)]
+        pub familiar: Option<String>,
         /// Skill-discovery configuration (extra paths and git URLs).
         #[serde(default)]
         pub skills: SkillsConfig,
@@ -1664,6 +1672,7 @@ pub mod config {
                 formatter: merge_map(base.config.formatter, over.config.formatter),
                 commands: merge_map(base.config.commands, over.config.commands),
                 agents: merge_map(base.config.agents, over.config.agents),
+                familiar: over.config.familiar.or(base.config.familiar),
                 skills: {
                     let mut paths = base.config.skills.paths;
                     for p in over.config.skills.paths { if !paths.contains(&p) { paths.push(p); } }
@@ -1694,6 +1703,7 @@ pub mod config {
                 commands: merge_map(base.commands, over.commands),
                 formatter: merge_map(base.formatter, over.formatter),
                 agents: merge_map(base.agents, over.agents),
+                familiar: over.familiar.or(base.familiar),
                 skills: {
                     let mut paths = base.skills.paths;
                     for p in over.skills.paths { if !paths.contains(&p) { paths.push(p); } }

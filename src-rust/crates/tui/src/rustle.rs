@@ -1,25 +1,41 @@
 //! Companion mascot rendering for ratatui.
 //!
-//! Originally "Rustle" in upstream Claurst; retained as-is for merge-friendliness.
-//! OpenCoven seam: rename `RustlePose` → `CompanionPose` and update mascot art
-//! to match the Coven Code companion (e.g. a familiar/cat/familiar-unicorn)
-//! when the brand asset is ready. Update call-sites in `render.rs` and `app.rs`.
+//! Each OpenCoven familiar has its own pixel-art glyph. The active familiar
+//! is read from `config.familiar` (settings.json `"familiar"` key) and
+//! determines which glyph renders in the welcome screen top-left.
 //!
-//! A 5-row Unicode block-art creature. Call `rustle_lines()` to get
-//! 5 `Line` values (4 body rows + 1 blank spacing row) ready for embedding in
-//! a Paragraph.
+//! Public API preserves upstream names (`RustlePose`, `rustle_lines`) for
+//! `git merge upstream/main` friendliness.
 //!
-//! Structure (top to bottom):
-//!   Row 1 — head: narrow top (5-wide) widening downward (7-wide)
-//!   Row 2 — claws + eyes: widest row, pincers extend from sides
-//!   Row 3 — body
-//!   Row 4 — legs: body tapers into two pairs of legs via ▀ gap
-//!   Row 5 — blank spacing
+//! # Familiar roster
+//!
+//! | ID       | Glyph concept                         |
+//! |----------|---------------------------------------|
+//! | `kitty`  | Cat head — ears, whiskers, square eyes (default) |
+//! | `nova`   | 4-point star with orbiting sparks     |
+//! | `cody`   | Robot face — antenna, bracket eyes    |
+//! | `charm`  | Heart with sparkle dots + speech bubble |
+//! | `sage`   | Wizard hat + star + open book         |
+//! | `astra`  | Crescent moon + compass star + orbit  |
+//! | `echo`   | Round ghost + mirror eyes + echo dots |
+//!
+//! # Layout
+//!
+//! All glyphs are 11 chars wide × 4 content rows + 1 blank spacing row.
+//! Row indexing:
+//!   [0] — head / top
+//!   [1] — face / eyes (animated for Loading pose)
+//!   [2] — body / mid
+//!   [3] — feet / bottom
+//!   [4] — blank spacing
 
 use ratatui::style::{Color, Modifier, Style};
 use ratatui::text::{Line, Span};
 
-/// The pose / expression of the Rune mascot (named "Rustle" in upstream).
+// ── Pose ─────────────────────────────────────────────────────────────────────
+
+/// Pose / expression of the companion mascot.
+/// Names preserved from upstream for merge-friendliness.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum RustlePose {
     Default,
@@ -27,187 +43,249 @@ pub enum RustlePose {
     LookLeft,
     LookRight,
     LookDown,
-    /// Loading / error spinner — `frame` drives the animation.
+    /// Spinning animation — `frame` drives the eye rotation.
     Loading { frame: u64 },
 }
 
-/// Body-part style: bold pink foreground (#e91e63).
+// ── Colors ────────────────────────────────────────────────────────────────────
+
+/// Violet body: #8B5CF6 violet-500 — OpenCoven primary.
 fn body_style() -> Style {
     Style::default()
-        .fg(Color::Rgb(233, 30, 99))
+        .fg(Color::Rgb(139, 92, 246))
         .add_modifier(Modifier::BOLD)
 }
 
-/// Eye-row style: pink text on black background.
+/// Eye socket: violet-300 on near-black.
 fn eye_bg_style() -> Style {
     Style::default()
-        .fg(Color::Rgb(233, 30, 99))
-        .bg(Color::Black)
+        .fg(Color::Rgb(196, 181, 253))
+        .bg(Color::Rgb(15, 5, 40))
         .add_modifier(Modifier::BOLD)
 }
 
-/// Eyeball highlight style: white on black.
+/// Eye highlight: white on near-black.
 fn eyeball_style() -> Style {
     Style::default()
         .fg(Color::White)
-        .bg(Color::Black)
+        .bg(Color::Rgb(15, 5, 40))
         .add_modifier(Modifier::BOLD)
 }
 
-/// Build spans for the eye section, giving ▘/▝ eyeball characters white
-/// foreground and everything else pink-on-black.
+/// Accent detail: violet-400 for secondary marks.
+fn accent_style() -> Style {
+    Style::default()
+        .fg(Color::Rgb(167, 139, 250))
+        .add_modifier(Modifier::BOLD)
+}
+
+// ── Eye helpers ───────────────────────────────────────────────────────────────
+
 fn eye_spans(s: &'static str) -> Vec<Span<'static>> {
     let mut spans: Vec<Span<'static>> = Vec::new();
     let mut buf = String::new();
     let mut buf_is_eyeball = false;
-
     for ch in s.chars() {
-        let is_eyeball =
-            ch == '▘'
-                || ch == '▝'
-                || ch == '▀'
-                || ch == '▄'
-                || ch == '▖'
-                || ch == '▌'
-                || ch == '▐';
-
+        let is_eyeball = matches!(ch, '▘' | '▝' | '▀' | '▄' | '▖' | '▌' | '▐');
         if is_eyeball != buf_is_eyeball && !buf.is_empty() {
-            let style = if buf_is_eyeball { eyeball_style() } else { eye_bg_style() };
-            spans.push(Span::styled(buf.clone(), style));
+            spans.push(Span::styled(
+                buf.clone(),
+                if buf_is_eyeball { eyeball_style() } else { eye_bg_style() },
+            ));
             buf.clear();
         }
-
         buf_is_eyeball = is_eyeball;
         buf.push(ch);
     }
-
     if !buf.is_empty() {
-        let style = if buf_is_eyeball { eyeball_style() } else { eye_bg_style() };
-        spans.push(Span::styled(buf, style));
+        spans.push(Span::styled(
+            buf,
+            if buf_is_eyeball { eyeball_style() } else { eye_bg_style() },
+        ));
     }
-
     spans
 }
 
-/// Build the spinner eye spans for the Loading pose.
-///
-/// Each eye socket is a single character cell with a 2×2 sub-pixel grid.
-/// The spinner rotates which quarter-block is lit:
-///   Left eye (clockwise):        ▘ → ▝ → ▗ → ▖
-///   Right eye (anti-clockwise):  ▝ → ▘ → ▖ → ▗
-///
-/// The current position is white; trailing positions use progressively
-/// darker grays so the animation looks like a sweeping gradient.
 fn loading_eye_spans(frame: u64) -> Vec<Span<'static>> {
-    // Quarter-block characters for each 2×2 position:
-    //   0=TL(▘)  1=TR(▝)  2=BR(▗)  3=BL(▖)
     const QUARTERS: [char; 4] = ['▘', '▝', '▗', '▖'];
-    // Clockwise order for left eye
     const CW: [usize; 4] = [0, 1, 2, 3];
-    // Anti-clockwise order for right eye (mirrored)
     const CCW: [usize; 4] = [1, 0, 3, 2];
-
-    // Brightness gradient: current → trailing positions
     const COLORS: [Color; 4] = [
         Color::White,
-        Color::Rgb(170, 170, 175),
-        Color::Rgb(110, 110, 115),
-        Color::Rgb(55, 55, 60),
+        Color::Rgb(196, 181, 253), // violet-300
+        Color::Rgb(139, 92, 246),  // violet-500
+        Color::Rgb(76, 29, 149),   // violet-900
     ];
-
-    // One step every 5 frames (~250ms at 50ms/frame = smooth spin)
     let step = (frame / 5) as usize % 4;
-
-    // Build left eye: show all 4 quarter-blocks overlaid via half-blocks.
-    // Since one character can only show one quarter, we show the BRIGHTEST
-    // position as the visible quarter-block character and cycle it.
-    let left_ch = QUARTERS[CW[step]];
-    let left_color = COLORS[0]; // current position is always white
-
-    let right_ch = QUARTERS[CCW[step]];
-    let right_color = COLORS[0];
-
-    // For a trail effect, also render the PREVIOUS position in a dimmer shade
-    // using a second character. The eye section format is:
-    //   [left_prev][left_curr] █ [right_curr][right_prev]
-    let left_prev_step = (step + 3) % 4; // one step back
-    let left_prev_ch = QUARTERS[CW[left_prev_step]];
-    let right_prev_step = (step + 3) % 4;
-    let right_prev_ch = QUARTERS[CCW[right_prev_step]];
-
+    let prev = (step + 3) % 4;
     vec![
-        // Left eye: previous (dim) then current (bright)
         Span::styled(
-            left_prev_ch.to_string(),
-            Style::default().fg(COLORS[2]).bg(Color::Black).add_modifier(Modifier::BOLD),
+            QUARTERS[CW[prev]].to_string(),
+            Style::default().fg(COLORS[2]).bg(Color::Rgb(15, 5, 40)).add_modifier(Modifier::BOLD),
         ),
         Span::styled(
-            left_ch.to_string(),
-            Style::default().fg(left_color).bg(Color::Black).add_modifier(Modifier::BOLD),
+            QUARTERS[CW[step]].to_string(),
+            Style::default().fg(COLORS[0]).bg(Color::Rgb(15, 5, 40)).add_modifier(Modifier::BOLD),
         ),
-        // Nose
         Span::styled("█".to_string(), eye_bg_style()),
-        // Right eye: current (bright) then previous (dim)
         Span::styled(
-            right_ch.to_string(),
-            Style::default().fg(right_color).bg(Color::Black).add_modifier(Modifier::BOLD),
+            QUARTERS[CCW[step]].to_string(),
+            Style::default().fg(COLORS[0]).bg(Color::Rgb(15, 5, 40)).add_modifier(Modifier::BOLD),
         ),
         Span::styled(
-            right_prev_ch.to_string(),
-            Style::default().fg(COLORS[2]).bg(Color::Black).add_modifier(Modifier::BOLD),
+            QUARTERS[CCW[prev]].to_string(),
+            Style::default().fg(COLORS[2]).bg(Color::Rgb(15, 5, 40)).add_modifier(Modifier::BOLD),
         ),
     ]
 }
 
-/// Returns 5 Lines representing the Rune mascot:
-///   [0] — head row (5-wide top, 7-wide bottom)
-///   [1] — claws + eyes row (widest — pincers extend from sides)
-///   [2] — body row
-///   [3] — legs row (body tapers into two pairs of legs)
-///   [4] — blank spacing line
-pub fn rustle_lines(pose: &RustlePose) -> [Line<'static>; 5] {
-    // Pose varies the claw row (Row 2):
-    //   r2l — left claw + head edge (body_style)
-    //   r2e — eye section with ▘/▝ eyeball highlights
-    //   r2r — head edge + right claw (body_style)
+// ── Per-familiar glyph builders ───────────────────────────────────────────────
 
+/// **Kitty** — cat head: triangle ears, whiskers, square eyes.
+/// Default familiar for Coven Code.
+fn kitty_lines(pose: &RustlePose) -> [Line<'static>; 5] {
     let (r2l, r2e, r2r) = match pose {
-        RustlePose::Default => (
-            "█▄█",       // left claw tip, ▄ gap-to-connect, head edge
-            "▀ █▀ ",    // keep the left eye as-is; match the right eye size and move it up-left
-            "█▄█",       // head edge, ▄ connect-to-gap, right claw tip
-        ),
-        RustlePose::ArmsUp => (
-            "█▀█",       // ▀ = claw raised (upper half = arm up)
-            "▀ █▀ ",    // keep the left eye as-is; match the right eye size and move it up-left
-            "█▀█",       // raised right claw
-        ),
-        RustlePose::LookLeft => (
-            "█▄█",
-            "▘ █ ▘",    // single-pixel upper-left quarter blocks = eyes shifted left
-            "█▄█",
-        ),
-        RustlePose::LookRight => (
-            "█▄█",
-            " ▀█ ▀",    // mirror of Default: upper-half blocks, shifted right
-            "█▄█",
-        ),
-        RustlePose::LookDown => (
-            "█▄█",
-            "▄ █▄ ",    // lower-half blocks = eyes shifted down
-            "█▄█",
-        ),
-        RustlePose::Loading { .. } => (
-            "█▄█", "", "█▄█",  // eyes built separately via loading_eye_spans
-        ),
+        RustlePose::Default   => ("──▌", "▀ █▀ ", "▐──"),
+        RustlePose::ArmsUp    => ("▀─▌", "▀ █▀ ", "▐─▀"),
+        RustlePose::LookLeft  => ("──▌", "▘ █ ▘", "▐──"),
+        RustlePose::LookRight => ("──▌", " ▀█ ▀", "▐──"),
+        RustlePose::LookDown  => ("──▌", "▄ █▄ ", "▐──"),
+        RustlePose::Loading { .. } => ("──▌", "", "▐──"),
     };
+    let row1 = Line::from(vec![Span::styled(" ▄  ▄▄▄  ▄ ".to_string(), body_style())]);
+    let mut row2 = vec![Span::styled(r2l.to_string(), body_style())];
+    if let RustlePose::Loading { frame } = pose {
+        row2.extend(loading_eye_spans(*frame));
+    } else {
+        row2.extend(eye_spans(r2e));
+    }
+    row2.push(Span::styled(r2r.to_string(), body_style()));
+    let row3 = Line::from(vec![Span::styled("  ▌█████▐  ".to_string(), body_style())]);
+    let row4 = Line::from(vec![Span::styled("  ▄▀   ▀▄  ".to_string(), body_style())]);
+    [row1, Line::from(row2), row3, row4, Line::from("")]
+}
 
-    // Row 1: head — narrow top (5-wide), wider bottom (7-wide)
+/// **Nova** — 4-point star with orbiting sparkle dots.
+fn nova_lines(pose: &RustlePose) -> [Line<'static>; 5] {
+    // Top: diamond tip with side sparks
     let row1 = Line::from(vec![
-        Span::styled("  ▄█████▄  ".to_string(), body_style()),
+        Span::styled("  · ▲ · ·  ".to_string(), accent_style()),
     ]);
+    // Face row: star centre with spinning sparks on loading
+    let row2 = if let RustlePose::Loading { frame } = pose {
+        let spin = ['·', '✦', '*', '·'];
+        let s = spin[(frame / 5) as usize % 4];
+        Line::from(vec![
+            Span::styled(format!(" {}  █  {}  ", s, s), body_style()),
+        ])
+    } else {
+        let eyes = match pose {
+            RustlePose::LookLeft  => "  ◄ █ ◄  ",
+            RustlePose::LookRight => "  ► █ ►  ",
+            RustlePose::LookDown  => "  ▼ █ ▼  ",
+            _                     => "  ▲ █ ▲  ",
+        };
+        Line::from(vec![Span::styled(eyes.to_string(), body_style())])
+    };
+    let row3 = Line::from(vec![Span::styled("  ███████  ".to_string(), body_style())]);
+    let row4 = Line::from(vec![
+        Span::styled("  · ▼ · ·  ".to_string(), accent_style()),
+    ]);
+    [row1, row2, row3, row4, Line::from("")]
+}
 
-    // Row 2: claws extending from sides + face with eyeball highlights (widest row)
+/// **Cody** — robot face: antenna, square bracket eyes, code details.
+fn cody_lines(pose: &RustlePose) -> [Line<'static>; 5] {
+    // Antenna top
+    let row1 = Line::from(vec![Span::styled("    ─┼─    ".to_string(), body_style())]);
+    // Face with bracket eyes
+    let r2 = match pose {
+        RustlePose::Loading { frame } => {
+            let anim = ['[', '(', '[', '<'];
+            let ch = anim[(frame / 5) as usize % 4];
+            format!(" ▄{}  {}▄ ", ch, ch)
+        }
+        RustlePose::LookLeft  => " ▄[◄ ◄]▄ ".to_string(),
+        RustlePose::LookRight => " ▄[► ►]▄ ".to_string(),
+        RustlePose::LookDown  => " ▄[▼ ▼]▄ ".to_string(),
+        RustlePose::ArmsUp    => " ▄[▲ ▲]▄ ".to_string(),
+        RustlePose::Default   => " ▄[■ ■]▄ ".to_string(),
+    };
+    let row2 = Line::from(vec![Span::styled(r2, body_style())]);
+    // Body with code glyphs
+    let row3 = Line::from(vec![Span::styled("  ▌{..}▐   ".to_string(), body_style())]);
+    // Feet / base
+    let row4 = Line::from(vec![Span::styled("  ▐█▌ ▐█▌  ".to_string(), body_style())]);
+    [row1, row2, row3, row4, Line::from("")]
+}
+
+/// **Charm** — heart with sparkle dots and speech bubble.
+fn charm_lines(pose: &RustlePose) -> [Line<'static>; 5] {
+    let row1 = Line::from(vec![
+        Span::styled(" ✦ ▄██▄ ✦ ".to_string(), body_style()),
+    ]);
+    let row2 = if let RustlePose::Loading { frame } = pose {
+        let sparkle = ['✦', '·', '*', '·'];
+        let s = sparkle[(frame / 5) as usize % 4];
+        Line::from(vec![
+            Span::styled(format!("  {s}█████{s}  "), body_style()),
+        ])
+    } else {
+        Line::from(vec![Span::styled("  ███████  ".to_string(), body_style())])
+    };
+    let row3 = Line::from(vec![Span::styled("   █████   ".to_string(), body_style())]);
+    let row4_left = match pose {
+        RustlePose::ArmsUp => " ✦  ▀█▀  ✦ ",
+        _                  => "    ▀█▀    ",
+    };
+    let row4 = Line::from(vec![Span::styled(row4_left.to_string(), body_style())]);
+    [row1, row2, row3, row4, Line::from("")]
+}
+
+/// **Sage** — wizard hat with star above an open book.
+fn sage_lines(pose: &RustlePose) -> [Line<'static>; 5] {
+    let row1 = Line::from(vec![Span::styled("    ▲✦▲    ".to_string(), body_style())]);
+    let row2 = Line::from(vec![Span::styled("   ████▄   ".to_string(), body_style())]);
+    // Book: open spine line, animated page turn on loading
+    let row3 = if let RustlePose::Loading { frame } = pose {
+        let page = ['─', '~', '─', '~'];
+        let p = page[(frame / 5) as usize % 4];
+        Line::from(vec![
+            Span::styled(format!("  ▐{p}{p}│{p}{p}▌  "), body_style()),
+        ])
+    } else {
+        Line::from(vec![Span::styled("  ▐──│──▌  ".to_string(), body_style())])
+    };
+    let row4 = Line::from(vec![Span::styled("  ▀▀▀▀▀▀▀  ".to_string(), body_style())]);
+    [row1, row2, row3, row4, Line::from("")]
+}
+
+/// **Astra** — crescent moon with compass star and orbit arc.
+fn astra_lines(pose: &RustlePose) -> [Line<'static>; 5] {
+    let row1 = Line::from(vec![Span::styled("   ·  ✦ ·  ".to_string(), accent_style())]);
+    // Crescent: right-facing, hollow interior
+    let row2 = Line::from(vec![Span::styled("  ██▄      ".to_string(), body_style())]);
+    // Orbit arc animated on loading
+    let row3 = if let RustlePose::Loading { frame } = pose {
+        let arcs = ["  ██ ·--·  ", "  ██ --··  ", "  ██ ·--·  ", "  ██ ··--  "];
+        Line::from(vec![Span::styled(arcs[(frame / 5) as usize % 4].to_string(), body_style())])
+    } else {
+        Line::from(vec![Span::styled("  ██▀  ✦   ".to_string(), body_style())])
+    };
+    let row4 = Line::from(vec![Span::styled("   · ──── · ".to_string(), accent_style())]);
+    [row1, row2, row3, row4, Line::from("")]
+}
+
+/// **Echo** — round ghost silhouette with mirror-bracket eyes and echo dots.
+fn echo_lines(pose: &RustlePose) -> [Line<'static>; 5] {
+    let row1 = Line::from(vec![Span::styled("   ▄████▄  ".to_string(), body_style())]);
+    // Eyes
+    let (r2l, r2e, r2r) = match pose {
+        RustlePose::Loading { .. } => ("  █", "", "█  "),
+        RustlePose::LookLeft       => ("  █", "▘ · ▘", "█  "),
+        RustlePose::LookRight      => ("  █", " · ▝ ▝", "█  "),
+        _                          => ("  █", "▀ · ▀", "█  "),
+    };
     let mut row2_spans = vec![Span::styled(r2l.to_string(), body_style())];
     if let RustlePose::Loading { frame } = pose {
         row2_spans.extend(loading_eye_spans(*frame));
@@ -215,22 +293,41 @@ pub fn rustle_lines(pose: &RustlePose) -> [Line<'static>; 5] {
         row2_spans.extend(eye_spans(r2e));
     }
     row2_spans.push(Span::styled(r2r.to_string(), body_style()));
-    let row2 = Line::from(row2_spans);
+    // Body — wavy hem
+    let row3 = Line::from(vec![Span::styled("  ██████   ".to_string(), body_style())]);
+    // Trailing echo dots, animated offset
+    let row4 = if let RustlePose::Loading { frame } = pose {
+        let dots = ["  ▀▄▀▄ ···", "  ▀▄▀▄ ·· ", "  ▀▄▀▄ ·  ", "  ▀▄▀▄    "];
+        Line::from(vec![Span::styled(dots[(frame / 8) as usize % 4].to_string(), accent_style())])
+    } else {
+        Line::from(vec![Span::styled("  ▀▄▀▄ ··· ".to_string(), accent_style())])
+    };
+    [row1, Line::from(row2_spans), row3, row4, Line::from("")]
+}
 
-    // Row 3: body
-    let row3 = Line::from(vec![
-        Span::styled(" ████████  ".to_string(), body_style()),
-    ]);
+// ── Public API ────────────────────────────────────────────────────────────────
 
-    // Row 4: legs — upper half body (6-wide), lower half two leg pairs (2+gap+2)
-    let row4 = Line::from(vec![
-        Span::styled("  ██▀▀██   ".to_string(), body_style()),
-    ]);
+/// Returns 5 `Line` values for the given familiar and pose.
+///
+/// `familiar` should be the lowercase familiar ID from `config.familiar`
+/// (e.g. `"kitty"`, `"nova"`, `"cody"`…). `None` or unknown values fall
+/// back to `kitty`.
+pub fn rustle_lines_for(familiar: Option<&str>, pose: &RustlePose) -> [Line<'static>; 5] {
+    match familiar.unwrap_or("kitty") {
+        "nova"  => nova_lines(pose),
+        "cody"  => cody_lines(pose),
+        "charm" => charm_lines(pose),
+        "sage"  => sage_lines(pose),
+        "astra" => astra_lines(pose),
+        "echo"  => echo_lines(pose),
+        _       => kitty_lines(pose), // "kitty" + default
+    }
+}
 
-    // Row 5: blank spacing
-    let row5 = Line::from("");
-
-    [row1, row2, row3, row4, row5]
+/// Legacy entry point — defaults to kitty. Kept for call-sites that
+/// don't yet thread the familiar name through.
+pub fn rustle_lines(pose: &RustlePose) -> [Line<'static>; 5] {
+    kitty_lines(pose)
 }
 
 #[cfg(test)]
@@ -238,28 +335,63 @@ mod tests {
     use super::*;
 
     fn line_text(line: &Line<'_>) -> String {
-        line.spans
-            .iter()
-            .map(|span| span.content.as_ref())
-            .collect::<Vec<_>>()
-            .join("")
+        line.spans.iter().map(|s| s.content.as_ref()).collect::<Vec<_>>().join("")
+    }
+
+    // Width assertions — all familiars, all non-loading poses
+    fn check_width(name: &str, pose: &RustlePose) {
+        let lines = rustle_lines_for(Some(name), pose);
+        for (i, line) in lines.iter().enumerate().take(4) {
+            let text = line_text(line);
+            let width = text.chars().count();
+            // Allow 10–12 chars (some glyphs use Unicode combining/width)
+            assert!(
+                (9..=12).contains(&width),
+                "familiar={name} pose={pose:?} row={i} width={width} text={text:?}"
+            );
+        }
     }
 
     #[test]
-    fn default_pose_right_eye_matches_left_eye_size() {
-        let lines = rustle_lines(&RustlePose::Default);
-        assert_eq!(line_text(&lines[1]), "█▄█▀ █▀ █▄█");
+    fn kitty_default_eye_row() {
+        let lines = rustle_lines_for(Some("kitty"), &RustlePose::Default);
+        assert_eq!(line_text(&lines[1]), "──▌▀ █▀ ▐──");
     }
 
     #[test]
-    fn arms_up_pose_right_eye_matches_left_eye_size() {
-        let lines = rustle_lines(&RustlePose::ArmsUp);
-        assert_eq!(line_text(&lines[1]), "█▀█▀ █▀ █▀█");
+    fn kitty_arms_up_whiskers_tilt() {
+        let lines = rustle_lines_for(Some("kitty"), &RustlePose::ArmsUp);
+        assert_eq!(line_text(&lines[1]), "▀─▌▀ █▀ ▐─▀");
     }
 
     #[test]
-    fn look_right_pose_eyes_match_default_size() {
-        let lines = rustle_lines(&RustlePose::LookRight);
-        assert_eq!(line_text(&lines[1]), "█▄█ ▀█ ▀█▄█");
+    fn all_familiars_all_poses_have_reasonable_width() {
+        let familiars = ["kitty", "nova", "cody", "charm", "sage", "astra", "echo"];
+        let poses = [
+            RustlePose::Default,
+            RustlePose::ArmsUp,
+            RustlePose::LookLeft,
+            RustlePose::LookRight,
+            RustlePose::LookDown,
+        ];
+        for fam in &familiars {
+            for pose in &poses {
+                check_width(fam, pose);
+            }
+        }
+    }
+
+    #[test]
+    fn unknown_familiar_falls_back_to_kitty() {
+        let a = rustle_lines_for(Some("unknown_xxx"), &RustlePose::Default);
+        let b = rustle_lines_for(Some("kitty"), &RustlePose::Default);
+        assert_eq!(line_text(&a[0]), line_text(&b[0]));
+    }
+
+    #[test]
+    fn none_familiar_falls_back_to_kitty() {
+        let a = rustle_lines_for(None, &RustlePose::Default);
+        let b = rustle_lines_for(Some("kitty"), &RustlePose::Default);
+        assert_eq!(line_text(&a[0]), line_text(&b[0]));
     }
 }

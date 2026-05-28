@@ -857,7 +857,7 @@ fn build_dialog_content(dialog: &ToolPermissionDialog) -> (&'static str, Vec<Str
             },
         ),
         ToolPermissionKind::AskUser { question, choices } => (
-            "Agent Question",
+            "Familiar Question",
             {
                 let mut lines = vec![question.clone()];
                 if !choices.is_empty() {
