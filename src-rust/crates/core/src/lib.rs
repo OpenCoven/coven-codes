@@ -90,6 +90,8 @@ pub use skill_discovery::{DiscoveredSkill, discover_skills, parse_skill_file};
 
 // Coven daemon shared state — read-only bridge to ~/.coven/.
 pub mod coven_shared;
+// Tier B IPC — blocking HTTP-over-Unix-socket client for the live daemon.
+pub mod coven_daemon;
 pub use cost::CostTracker;
 pub use history::ConversationSession;
 pub use feature_flags::FeatureFlagManager;
