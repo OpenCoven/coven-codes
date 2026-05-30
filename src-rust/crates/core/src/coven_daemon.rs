@@ -144,15 +144,11 @@ impl DaemonClient {
             let mut stream = self.connect().ok()?;
             let request = match body {
                 Some(body) => format!(
-                    "{} {} HTTP/1.0\r\nHost: localhost\r\nAccept: application/json\r\nContent-Type: application/json\r\nContent-Length: {}\r\n\r\n{}",
-                    method,
-                    path,
-                    body.len(),
-                    body
+                    "{method} {path} HTTP/1.0\r\nHost: localhost\r\nAccept: application/json\r\nContent-Type: application/json\r\nContent-Length: {}\r\n\r\n{body}",
+                    body.len()
                 ),
                 None => format!(
-                    "{} {} HTTP/1.0\r\nHost: localhost\r\nAccept: application/json\r\n\r\n",
-                    method, path
+                    "{method} {path} HTTP/1.0\r\nHost: localhost\r\nAccept: application/json\r\n\r\n"
                 ),
             };
             stream.write_all(request.as_bytes()).ok()?;
@@ -295,7 +291,9 @@ mod tests {
 
     #[test]
     fn new_returns_none_when_sock_absent() {
-        let _lock = COVEN_HOME_ENV_LOCK.lock().unwrap_or_else(|e| e.into_inner());
+        let _lock = COVEN_HOME_ENV_LOCK
+            .lock()
+            .unwrap_or_else(|e| e.into_inner());
         let dir = tempfile::tempdir().unwrap();
         let _g = EnvGuard::set("COVEN_HOME", dir.path().to_str().unwrap());
         // Directory exists but no coven.sock inside → should return None.
@@ -304,7 +302,9 @@ mod tests {
 
     #[test]
     fn new_returns_some_when_sock_present() {
-        let _lock = COVEN_HOME_ENV_LOCK.lock().unwrap_or_else(|e| e.into_inner());
+        let _lock = COVEN_HOME_ENV_LOCK
+            .lock()
+            .unwrap_or_else(|e| e.into_inner());
         let dir = tempfile::tempdir().unwrap();
         // Create a placeholder file (not a real socket, just needs to exist).
         fs::write(dir.path().join("coven.sock"), b"").unwrap();
@@ -336,7 +336,10 @@ mod tests {
         assert_eq!(raw.len(), 2);
 
         let s0 = FamiliarStatus {
-            display_name: raw[0].display_name.clone().unwrap_or_else(|| raw[0].id.clone()),
+            display_name: raw[0]
+                .display_name
+                .clone()
+                .unwrap_or_else(|| raw[0].id.clone()),
             emoji: raw[0].emoji.clone().unwrap_or_default(),
             status: raw[0].status.clone().unwrap_or_default(),
             active_sessions: raw[0].active_sessions.unwrap_or(0),
@@ -350,7 +353,10 @@ mod tests {
         assert_eq!(s0.active_sessions, 2);
 
         let s1 = FamiliarStatus {
-            display_name: raw[1].display_name.clone().unwrap_or_else(|| raw[1].id.clone()),
+            display_name: raw[1]
+                .display_name
+                .clone()
+                .unwrap_or_else(|| raw[1].id.clone()),
             emoji: raw[1].emoji.clone().unwrap_or_default(),
             status: raw[1].status.clone().unwrap_or_default(),
             active_sessions: raw[1].active_sessions.unwrap_or(0),
@@ -364,7 +370,9 @@ mod tests {
 
     #[test]
     fn familiar_statuses_returns_empty_on_bad_json() {
-        let _lock = COVEN_HOME_ENV_LOCK.lock().unwrap_or_else(|e| e.into_inner());
+        let _lock = COVEN_HOME_ENV_LOCK
+            .lock()
+            .unwrap_or_else(|e| e.into_inner());
         let dir = tempfile::tempdir().unwrap();
         // Placeholder sock — not a real socket, so connect() will fail.
         fs::write(dir.path().join("coven.sock"), b"").unwrap();
@@ -374,6 +382,7 @@ mod tests {
         assert!(client.familiar_statuses().is_empty());
     }
 
+    #[cfg(unix)]
     #[test]
     fn create_session_posts_payload_and_returns_session_id() {
         let dir = tempfile::tempdir().unwrap();
@@ -386,6 +395,8 @@ mod tests {
             let n = stream.read(&mut buf).unwrap();
             let request = String::from_utf8_lossy(&buf[..n]);
             assert!(request.starts_with("POST /api/v1/sessions HTTP/1.0"));
+            assert!(request.contains("Host: localhost\r\n"));
+            assert!(request.contains("Content-Type: application/json\r\n"));
             assert!(request.contains("\"familiar\":\"sage\""));
             assert!(request.contains("\"project_root\":\"/tmp/project\""));
             assert!(request.contains("\"initial_message\":\"handoff context\""));
