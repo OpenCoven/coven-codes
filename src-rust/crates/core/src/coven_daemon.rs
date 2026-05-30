@@ -14,7 +14,7 @@ use std::path::PathBuf;
 #[cfg(unix)]
 use std::time::Duration;
 
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 #[cfg(unix)]
 use crate::coven_shared::coven_home;
@@ -42,6 +42,16 @@ pub struct DaemonSession {
     pub title: String,
     pub status: String,
     pub project_root: String,
+}
+
+/// Payload for creating a new Coven daemon session.
+#[derive(Debug, Clone, Serialize)]
+pub struct CreateSessionRequest {
+    pub familiar: String,
+    pub project_root: String,
+    pub harness: String,
+    pub title: String,
+    pub initial_message: String,
 }
 
 // ---------------------------------------------------------------------------
@@ -124,18 +134,27 @@ impl DaemonClient {
         Ok(stream)
     }
 
-    /// Send a minimal HTTP/1.0 GET and return the body string.
+    /// Send a minimal HTTP/1.0 request and return the body string.
     ///
     /// HTTP/1.0 is used so the server closes the connection after the
     /// response — no need to parse `Content-Length` or chunked encoding.
-    fn get(&self, path: &str) -> Option<String> {
+    fn request(&self, method: &str, path: &str, body: Option<&str>) -> Option<String> {
         #[cfg(unix)]
         {
             let mut stream = self.connect().ok()?;
-            let request = format!(
-                "GET {} HTTP/1.0\r\nHost: localhost\r\nAccept: application/json\r\n\r\n",
-                path
-            );
+            let request = match body {
+                Some(body) => format!(
+                    "{} {} HTTP/1.0\r\nHost: localhost\r\nAccept: application/json\r\nContent-Type: application/json\r\nContent-Length: {}\r\n\r\n{}",
+                    method,
+                    path,
+                    body.len(),
+                    body
+                ),
+                None => format!(
+                    "{} {} HTTP/1.0\r\nHost: localhost\r\nAccept: application/json\r\n\r\n",
+                    method, path
+                ),
+            };
             stream.write_all(request.as_bytes()).ok()?;
             stream.flush().ok()?;
 
@@ -159,9 +178,16 @@ impl DaemonClient {
         }
         #[cfg(not(unix))]
         {
+            let _ = method;
             let _ = path;
+            let _ = body;
             None
         }
+    }
+
+    /// Send a minimal HTTP/1.0 GET and return the body string.
+    fn get(&self, path: &str) -> Option<String> {
+        self.request("GET", path, None)
     }
 
     // -- public API ---------------------------------------------------------
@@ -213,6 +239,26 @@ impl DaemonClient {
                 id: r.id,
             })
             .collect()
+    }
+
+    /// Create a daemon session and return its session id.
+    pub fn create_session(&self, req: CreateSessionRequest) -> Result<String, String> {
+        let body = serde_json::to_string(&req)
+            .map_err(|e| format!("Failed to encode daemon session request: {e}"))?;
+        let response = self
+            .request("POST", "/api/v1/sessions", Some(&body))
+            .ok_or_else(|| {
+                "Coven daemon did not return a successful session response".to_string()
+            })?;
+        let value: serde_json::Value = serde_json::from_str(&response)
+            .map_err(|e| format!("Coven daemon returned invalid session JSON: {e}"))?;
+        value
+            .get("id")
+            .or_else(|| value.get("session_id"))
+            .or_else(|| value.get("sessionId"))
+            .and_then(|id| id.as_str())
+            .map(|id| id.to_string())
+            .ok_or_else(|| "Coven daemon response did not include a session id".to_string())
     }
 }
 
@@ -326,5 +372,42 @@ mod tests {
         let client = DaemonClient::new().unwrap();
         // connect() will fail → familiar_statuses() must return empty vec, not panic.
         assert!(client.familiar_statuses().is_empty());
+    }
+
+    #[test]
+    fn create_session_posts_payload_and_returns_session_id() {
+        let dir = tempfile::tempdir().unwrap();
+        let sock = dir.path().join("coven.sock");
+        let listener = std::os::unix::net::UnixListener::bind(&sock).unwrap();
+
+        let server = std::thread::spawn(move || {
+            let (mut stream, _) = listener.accept().unwrap();
+            let mut buf = [0_u8; 4096];
+            let n = stream.read(&mut buf).unwrap();
+            let request = String::from_utf8_lossy(&buf[..n]);
+            assert!(request.starts_with("POST /api/v1/sessions HTTP/1.0"));
+            assert!(request.contains("\"familiar\":\"sage\""));
+            assert!(request.contains("\"project_root\":\"/tmp/project\""));
+            assert!(request.contains("\"initial_message\":\"handoff context\""));
+            stream
+                .write_all(
+                    b"HTTP/1.0 201 Created\r\nContent-Type: application/json\r\n\r\n{\"id\":\"sess_123\"}",
+                )
+                .unwrap();
+        });
+
+        let client = DaemonClient { sock_path: sock };
+        let session_id = client
+            .create_session(CreateSessionRequest {
+                familiar: "sage".to_string(),
+                project_root: "/tmp/project".to_string(),
+                harness: "openclaw".to_string(),
+                title: "Handoff from coven-code".to_string(),
+                initial_message: "handoff context".to_string(),
+            })
+            .unwrap();
+
+        server.join().unwrap();
+        assert_eq!(session_id, "sess_123");
     }
 }
