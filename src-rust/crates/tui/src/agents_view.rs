@@ -433,6 +433,18 @@ pub fn load_agent_definitions(project_root: &std::path::Path) -> Vec<AgentDefini
             .iter()
             .map(|d| d.name.to_lowercase())
             .collect();
+
+        // Tier B: fetch live status from the daemon (degrades gracefully).
+        let daemon_statuses: std::collections::HashMap<String, coven_shared::FamiliarStatus> =
+            coven_shared::DaemonClient::new()
+                .map(|c| {
+                    c.familiar_statuses()
+                        .into_iter()
+                        .map(|s| (s.id.clone(), s))
+                        .collect()
+                })
+                .unwrap_or_default();
+
         for fam in &familiars {
             let display = fam
                 .display_name
@@ -443,7 +455,19 @@ pub fn load_agent_definitions(project_root: &std::path::Path) -> Vec<AgentDefini
             if familiar_names.contains(&display.to_lowercase()) {
                 continue;
             }
-            defs.push(familiar_as_agent_def(fam));
+            let mut agent_def = familiar_as_agent_def(fam);
+            // Annotate with live daemon status when available.
+            if let Some(live) = daemon_statuses.get(&fam.id) {
+                let badge = if live.active_sessions > 0 {
+                    format!(" · active ({} sessions)", live.active_sessions)
+                } else if live.status == "online" || live.status == "active" {
+                    " · online".to_string()
+                } else {
+                    " · offline".to_string()
+                };
+                agent_def.description.push_str(&badge);
+            }
+            defs.push(agent_def);
         }
     }
 

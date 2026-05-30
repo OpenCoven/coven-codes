@@ -8,7 +8,10 @@
 //! absent so coven-code keeps working standalone.
 //!
 //! Tier A of the "native Coven" integration. Tier B (daemon IPC over
-//! `~/.coven/coven.sock`) is not implemented here.
+//! `~/.coven/coven.sock`) lives in [`crate::coven_daemon`].
+
+// Re-export Tier B IPC types for convenience.
+pub use crate::coven_daemon::{DaemonClient, DaemonSession, FamiliarStatus};
 
 use std::path::PathBuf;
 use serde::Deserialize;
