@@ -130,9 +130,10 @@ impl DaemonClient {
 
         // Split on the blank line that separates headers from body.
         if let Some(idx) = response.find("\r\n\r\n") {
-            // Verify the status line starts with "HTTP/1." 2xx.
+            // Verify the response has a 2xx status code.
             let status_line = response.lines().next().unwrap_or("");
-            if !status_line.contains(" 2") {
+            let status_code = status_line.split_whitespace().nth(1)?.parse::<u16>().ok()?;
+            if !(200..300).contains(&status_code) {
                 return None;
             }
             Some(response[idx + 4..].to_string())
